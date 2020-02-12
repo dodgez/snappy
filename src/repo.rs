@@ -1,6 +1,5 @@
 use std::fs::{create_dir_all, File, remove_dir_all};
 use std::path::Path;
-use std::process::exit;
 
 pub fn init(force: bool) {
   let snap_dir = Path::new(".snappy");
@@ -11,8 +10,7 @@ pub fn init(force: bool) {
     if force {
       remove_dir_all(snap_dir).unwrap();
     } else {
-      eprintln!("fatal: found an existing snappy repo");
-      exit(1);
+      panic!("fatal: found an existing snappy repo");
     }
   }
 
