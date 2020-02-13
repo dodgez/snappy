@@ -1,5 +1,6 @@
+use glob::Pattern;
 use sha2::{Digest, Sha256};
-use std::fs::{create_dir_all, File};
+use std::fs::{create_dir_all, read_dir, read_to_string, File};
 use std::io::prelude::*;
 use std::path::Path;
 
@@ -9,6 +10,9 @@ fn stage_file(path: &Path) {
     let snap_dir = Path::new(".snappy");
     let snaps_dir = snap_dir.join("snaps");
 
+    if !snap_dir.exists() {
+        panic!("fatal: not a snappy repository");
+    }
     if !path.is_relative() {
         panic!("fatal: only relative paths are supported");
     }
@@ -31,8 +35,14 @@ fn stage_file(path: &Path) {
     index::update_index(path, &hash);
 }
 
-fn stage_dir(_path: &Path) {
-    panic!("fatal: not implemented yet");
+fn stage_dir(path: &Path) {
+    let mut iter = read_dir(path).unwrap();
+    while let Some(dir_entry) = iter.next() {
+        let path = dir_entry.unwrap().path();
+        if !path.display().to_string().contains(".snappy") {
+            stage(&path);
+        }
+    }
 }
 
 pub fn stage(path: &Path) {
@@ -40,6 +50,17 @@ pub fn stage(path: &Path) {
         panic!("fatal: object does not exist {}", path.display());
     }
 
+    let ignore_file = Path::new(".snapignore");
+    if ignore_file.exists() {
+        let contents = read_to_string(&ignore_file).unwrap();
+        let mut lines = contents.lines();
+        while let Some(line) = lines.next() {
+            let ignored = Pattern::new(&line).unwrap();
+            if ignored.matches_path(&path) {
+                return;
+            }
+        }
+    }
     if path.is_dir() {
         stage_dir(path);
     } else if path.is_file() {
