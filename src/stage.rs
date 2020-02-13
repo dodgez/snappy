@@ -3,6 +3,8 @@ use std::fs::{create_dir_all, File};
 use std::io::prelude::*;
 use std::path::Path;
 
+use crate::index;
+
 fn stage_file(path: &Path) {
     let snap_dir = Path::new(".snappy");
     let snaps_dir = snap_dir.join("snaps");
@@ -26,10 +28,7 @@ fn stage_file(path: &Path) {
     file.write("file\0".as_bytes()).unwrap();
     file.write(&data).unwrap();
 
-    let mut ancestors = path.ancestors();
-    while let Some(_ancestor) = ancestors.next() {
-        // update the above directories
-    }
+    index::update_index(path, &hash);
 }
 
 fn stage_dir(_path: &Path) {

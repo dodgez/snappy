@@ -1,6 +1,7 @@
 use clap::{App, AppSettings, Arg, SubCommand};
 use std::path::Path;
 
+mod index;
 mod repo;
 mod stage;
 
