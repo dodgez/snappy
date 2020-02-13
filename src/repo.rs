@@ -1,4 +1,5 @@
 use std::fs::{create_dir_all, remove_dir_all, File};
+use std::io::prelude::*;
 use std::path::Path;
 
 pub fn init(force: bool) {
@@ -18,6 +19,9 @@ pub fn init(force: bool) {
     create_dir_all(snap_dir).unwrap();
     create_dir_all(snaps_dir).unwrap();
 
-    File::create(head_file).unwrap();
+    File::create(head_file)
+        .unwrap()
+        .write("0".as_bytes())
+        .unwrap();
     File::create(index_file).unwrap();
 }

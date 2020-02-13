@@ -1,6 +1,7 @@
 use clap::{App, AppSettings, Arg, SubCommand};
 use std::path::Path;
 
+mod commit;
 mod index;
 mod repo;
 mod stage;
@@ -29,6 +30,15 @@ fn main() {
                         .required(true),
                 ),
         )
+        .subcommand(
+            SubCommand::with_name("commit")
+                .about("Creates a snapshot of the staging area")
+                .arg(
+                    Arg::with_name("commit_message")
+                        .help("A short description of the file changes")
+                        .required(true),
+                ),
+        )
         .get_matches();
 
     if let Some(matches) = matches.subcommand_matches("init") {
@@ -37,5 +47,9 @@ fn main() {
 
     if let Some(matches) = matches.subcommand_matches("add") {
         stage::stage(&Path::new(matches.value_of("object_to_stage").unwrap()));
+    }
+
+    if let Some(matches) = matches.subcommand_matches("commit") {
+        commit::commit(matches.value_of("commit_message").unwrap());
     }
 }
