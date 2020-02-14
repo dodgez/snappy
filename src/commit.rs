@@ -111,4 +111,6 @@ pub fn commit(message: &str) {
 
     remove_dir_all(temp_dir).unwrap();
     write(head_file, hash.as_bytes()).unwrap();
+
+    println!("{}", hash);
 }
