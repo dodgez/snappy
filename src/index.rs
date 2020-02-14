@@ -2,6 +2,11 @@ use std::fs::{read_to_string, write, File};
 use std::path::Path;
 
 pub fn update_index(path: &Path, hash: &str) {
+    let path = if path.starts_with(".") {
+        path.strip_prefix(".").unwrap()
+    } else {
+        path
+    };
     let snap_dir = Path::new(".snappy");
     let index_file = snap_dir.join("index");
     if !snap_dir.exists() {
@@ -14,11 +19,7 @@ pub fn update_index(path: &Path, hash: &str) {
     let contents = read_to_string(&index_file).unwrap();
     let lines = contents.lines();
     let mut lines = lines.collect::<Vec<&str>>();
-    let updated_line = if path.starts_with(".") {
-        format!("{}:{}", path.strip_prefix(".").unwrap().display(), hash)
-    } else {
-        format!("{}:{}", path.display(), hash)
-    };
+    let updated_line = format!("{}:{}", path.display(), hash);
     let mut found_line = false;
 
     for i in 0..lines.len() {
