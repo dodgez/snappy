@@ -14,7 +14,11 @@ pub fn update_index(path: &Path, hash: &str) {
     let contents = read_to_string(&index_file).unwrap();
     let lines = contents.lines();
     let mut lines = lines.collect::<Vec<&str>>();
-    let updated_line = format!("{}:{}", path.display(), hash);
+    let updated_line = if path.starts_with(".") {
+        format!("{}:{}", path.strip_prefix(".").unwrap().display(), hash)
+    } else {
+        format!("{}:{}", path.display(), hash)
+    };
     let mut found_line = false;
 
     for i in 0..lines.len() {
