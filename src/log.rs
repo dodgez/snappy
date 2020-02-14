@@ -19,7 +19,10 @@ pub fn log() {
         let message = commit_info.next().unwrap();
         let tree_hash = commit_info.next().unwrap();
 
-        println!("Commit {}\nParent {}\nMessage {}\nTree {}\n", commit_hash, parent, message, tree_hash);
+        println!(
+            "Commit {}\nParent {}\nMessage {}\nTree {}\n",
+            commit_hash, parent, message, tree_hash
+        );
 
         commit_hash = parent.to_string();
     }

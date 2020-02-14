@@ -21,7 +21,7 @@ fn main() {
                     Arg::with_name("force")
                         .help("Overwrites an existing repository")
                         .short("f"),
-                )
+                ),
         )
         .subcommand(
             SubCommand::with_name("add")
@@ -30,7 +30,7 @@ fn main() {
                     Arg::with_name("object_to_stage")
                         .help("The object to add to staging")
                         .required(true),
-                )
+                ),
         )
         .subcommand(
             SubCommand::with_name("commit")
@@ -39,7 +39,7 @@ fn main() {
                     Arg::with_name("commit_message")
                         .help("A short description of the file changes")
                         .required(true),
-                )
+                ),
         )
         .subcommand(
             SubCommand::with_name("checkout")
@@ -48,12 +48,9 @@ fn main() {
                     Arg::with_name("commit_hash")
                         .help("The hash of the commit to checkout")
                         .required(true),
-                )
+                ),
         )
-        .subcommand(
-            SubCommand::with_name("log")
-                .about("Output the linear history of HEAD")
-        )
+        .subcommand(SubCommand::with_name("log").about("Output the linear history of HEAD"))
         .get_matches();
 
     if let Some(matches) = matches.subcommand_matches("init") {

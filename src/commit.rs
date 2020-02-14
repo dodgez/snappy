@@ -98,7 +98,7 @@ pub fn commit(message: &str) {
         let path = Path::new(file_info[0]);
         match path.parent() {
             Some(parent) => track_object(parent),
-            None => ()
+            None => (),
         }
         track_object(path);
         let hash = file_info[1];
