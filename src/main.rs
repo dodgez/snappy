@@ -1,6 +1,7 @@
 use clap::{App, AppSettings, Arg, SubCommand};
 use std::path::Path;
 
+mod checkout;
 mod commit;
 mod index;
 mod repo;
@@ -39,6 +40,15 @@ fn main() {
                         .required(true),
                 ),
         )
+        .subcommand(
+            SubCommand::with_name("checkout")
+                .about("Checkout a specific commit")
+                .arg(
+                    Arg::with_name("commit_hash")
+                        .help("The hash of the commit to checkout")
+                        .required(true),
+                ),
+        )
         .get_matches();
 
     if let Some(matches) = matches.subcommand_matches("init") {
@@ -51,5 +61,9 @@ fn main() {
 
     if let Some(matches) = matches.subcommand_matches("commit") {
         commit::commit(matches.value_of("commit_message").unwrap());
+    }
+
+    if let Some(matches) = matches.subcommand_matches("checkout") {
+        checkout::checkout(matches.value_of("commit_hash").unwrap());
     }
 }
