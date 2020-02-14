@@ -46,9 +46,11 @@ fn recurse_dir_commit(path: &Path) -> HashObject {
         create_dir_all(&hash_dir).unwrap();
     }
     let file_path = hash_dir.join(&hash[2..]);
-    let mut file = File::create(file_path).unwrap();
-    file.write("tree\0".as_bytes()).unwrap();
-    file.write(&bytes).unwrap();
+    if !file_path.exists() {
+        let mut file = File::create(file_path).unwrap();
+        file.write("tree\0".as_bytes()).unwrap();
+        file.write(&bytes).unwrap();
+    }
 
     return HashObject {
         name: path.file_name().unwrap().to_str().unwrap().to_owned(),
@@ -108,6 +110,5 @@ pub fn commit(message: &str) {
     file.write(&bytes).unwrap();
 
     remove_dir_all(temp_dir).unwrap();
-    write(index_file, "".as_bytes()).unwrap();
     write(head_file, hash.as_bytes()).unwrap();
 }
