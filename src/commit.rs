@@ -8,6 +8,25 @@ struct HashObject {
     hash: String,
 }
 
+fn track_object(path: &Path) {
+    let snap_dir = Path::new(".snappy");
+    let tracked_file = snap_dir.join("tracked");
+
+    if !tracked_file.exists() {
+        File::create(&tracked_file).unwrap();
+    }
+
+    let contents = read_to_string(&tracked_file).unwrap();
+    let mut lines = contents.lines();
+    while let Some(line) = lines.next() {
+        if path == Path::new(line) {
+            return;
+        }
+    }
+
+    write(tracked_file, contents + &format!("{}\n", path.display())).unwrap();
+}
+
 fn recurse_dir_commit(path: &Path) -> HashObject {
     let snap_dir = Path::new(".snappy");
     let snaps_dir = snap_dir.join("snaps");
@@ -77,6 +96,11 @@ pub fn commit(message: &str) {
     while let Some(file) = files.next() {
         let file_info = file.split(':').collect::<Vec<&str>>();
         let path = Path::new(file_info[0]);
+        match path.parent() {
+            Some(parent) => track_object(parent),
+            None => ()
+        }
+        track_object(path);
         let hash = file_info[1];
         let temp_file_path = temp_dir.join(path);
         match temp_file_path.parent() {

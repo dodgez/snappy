@@ -7,6 +7,7 @@ pub fn init(force: bool) {
     let snaps_dir = snap_dir.join("snaps");
     let head_file = snap_dir.join("HEAD");
     let index_file = snap_dir.join("index");
+    let tracked_file = snap_dir.join("tracked");
 
     if snap_dir.exists() {
         if force {
@@ -24,4 +25,5 @@ pub fn init(force: bool) {
         .write("0".as_bytes())
         .unwrap();
     File::create(index_file).unwrap();
+    File::create(tracked_file).unwrap();
 }
