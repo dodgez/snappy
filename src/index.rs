@@ -1,6 +1,8 @@
 use std::fs::{read_to_string, write, File};
 use std::path::Path;
 
+use crate::objects::TreeEntry;
+
 pub fn update_index(path: &Path, hash: &str) {
     let path = if path.starts_with(".") {
         path.strip_prefix(".").unwrap()
@@ -19,18 +21,22 @@ pub fn update_index(path: &Path, hash: &str) {
     let contents = read_to_string(&index_file).unwrap();
     let lines = contents.lines();
     let mut lines = lines.collect::<Vec<&str>>();
-    let updated_line = format!("{}:{}", path.display(), hash);
+    let updated_line = &TreeEntry {
+        hash: hash.to_string(),
+        name: path.display().to_string(),
+    }
+    .to_string();
     let mut found_line = false;
 
     for i in 0..lines.len() {
         if lines[i].starts_with(&path.display().to_string()) {
-            lines[i] = &updated_line;
+            lines[i] = updated_line;
             found_line = true;
         }
     }
 
     if !found_line {
-        lines.push(&updated_line);
+        lines.push(updated_line);
     }
 
     write(index_file, lines.join("\n").as_bytes()).unwrap();
