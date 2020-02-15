@@ -1,27 +1,32 @@
-use std::fs::read_to_string;
-use std::path::Path;
+use std::fs::{read_to_string, write};
+use std::path::{Path, PathBuf};
 
 use crate::hash;
 
 pub struct File {
-    contents: String,
-    hash: String,
+    pub contents: String,
+    pub hash: String,
+}
+
+pub struct TreeEntry {
+    pub hash: String,
+    pub name: String,
 }
 
 pub struct Tree {
-    children: Vec<String>,
-    hash: String,
+    pub children: Vec<TreeEntry>,
+    pub hash: String,
 }
 
 pub struct Commit {
-    hash: String,
-    message: String,
-    parent: String,
-    tree: String,
+    pub hash: String,
+    pub message: String,
+    pub parent: String,
+    pub tree: String,
 }
 
 impl File {
-    fn new(contents: String) -> File {
+    pub fn new(contents: String) -> File {
         let hash = hash::hash(&format!("file\n{}", contents));
 
         File {
@@ -30,41 +35,78 @@ impl File {
         }
     }
 
-    fn from_file(path: &Path) -> File {
+    pub fn from_file(path: &Path) -> File {
         if !path.exists() {
             panic!("fatal: object does not exist {}", path.display());
         }
 
         let data = read_to_string(path).unwrap();
-        let hash = hash::hash(&data);
-        let contents = data[5..].to_string();
+        return File::from_string(&data);
+    }
+
+    pub fn from_string(contents: &str) -> File {
+        let hash = hash::hash(contents);
+        let contents = contents[5..].to_string();
         File {
             contents,
             hash,
         }
     }
+
+    pub fn get_hash_path(&self) -> PathBuf {
+        return hash::get_hash_dir(&self.hash);
+    }
+
+    pub fn write_to_file(&self, path: &Path) {
+        write(path, format!("file\n{}", self.contents).as_bytes()).unwrap();
+    }
+}
+
+impl TreeEntry {
+    pub fn from_string(data: &str) -> TreeEntry {
+        let mut parts = data.split(':');
+        let name = parts.next().unwrap().to_string();
+        let hash = parts.next().unwrap().to_string();
+
+        TreeEntry {
+            hash,
+            name,
+        }
+    }
+
+    pub fn to_string(&self) -> String {
+        format!("{}:{}", self.name, self.hash)
+    }
 }
 
 impl Tree {
-    fn new(children: Vec<String>) -> Tree {
-        let hash = hash::hash(&format!("tree\n{}", children.join("\n")));
+    pub fn new(raw_children: Vec<String>) -> Tree {
+        let hash = hash::hash(&format!("tree\n{}", raw_children.join("\n")));
+        let children = Vec::<TreeEntry>::new();
+        for child in raw_children {
+            children.push(TreeEntry::from_string(&child));
+        }
 
         Tree { children, hash }
     }
 
-    fn from_file(path: &Path) -> Tree {
+    pub fn from_file(path: &Path) -> Tree {
         if !path.exists() {
             panic!("fatal: object does not exist {}", path.display());
         }
 
         let data = read_to_string(path).unwrap();
-        let hash = hash::hash(&data);
-        let mut lines = data.lines();
+        return Tree::from_string(&data);
+    }
+
+    pub fn from_string(contents: &str) -> Tree {
+        let hash = hash::hash(&contents);
+        let mut lines = contents.lines();
         // Pass over identifier
         lines.next();
-        let mut children = Vec::<String>::new();
+        let mut children = Vec::<TreeEntry>::new();
         while let Some(line) = lines.next() {
-            children.push(line.to_string());
+            children.push(TreeEntry::from_string(line));
         }
 
         Tree {
@@ -72,10 +114,23 @@ impl Tree {
             hash,
         }
     }
+
+    pub fn get_hash_path(&self) -> PathBuf {
+        return hash::get_hash_dir(&self.hash);
+    }
+
+    pub fn write_to_file(&self, path: &Path) {
+        let raw_children = Vec::<String>::new();
+        for child in self.children {
+            raw_children.push(child.to_string());
+        }
+
+        write(path, format!("tree\n{}", raw_children.join("\n")).as_bytes()).unwrap();
+    }
 }
 
 impl Commit {
-    fn new(parent: String, message: String, tree: String) -> Commit {
+    pub fn new(parent: String, message: String, tree: String) -> Commit {
         let hash = hash::hash(&format!("commit\n{}\n{}\n{}", parent, message, tree));
 
         Commit {
@@ -86,14 +141,18 @@ impl Commit {
         }
     }
 
-    fn from_file(path: &Path) -> Commit {
+    pub fn from_file(path: &Path) -> Commit {
         if !path.exists() {
             panic!("fatal: object does not exist {}", path.display());
         }
 
         let data = read_to_string(path).unwrap();
-        let hash = hash::hash(&data);
-        let mut lines = data.lines();
+        return Commit::from_string(&data);
+    }
+
+    pub fn from_string(contents: &str) -> Commit {
+        let hash = hash::hash(&contents);
+        let mut lines = contents.lines();
         let _identifier = lines.next().unwrap();
         let parent = lines.next().unwrap().to_string();
         let message = lines.next().unwrap().to_string();
@@ -105,5 +164,13 @@ impl Commit {
             parent,
             tree,
         }
+    }
+
+    fn get_hash_path(&self) -> PathBuf {
+        return hash::get_hash_dir(&self.hash);
+    }
+
+    fn write_to_file(&self, path: &Path) {
+        write(path, format!("commit\n{}\n{}\n{}", self.parent, self.message, self.tree).as_bytes()).unwrap();
     }
 }

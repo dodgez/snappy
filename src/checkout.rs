@@ -1,6 +1,9 @@
 use std::fs::{create_dir_all, read_to_string, remove_dir_all, remove_file, write};
 use std::path::Path;
 
+use crate::hash;
+use crate::objects::{Commit, File, Tree};
+
 fn populate_working_directory(hash: &str, partial_path: &Path) {
     let snap_dir = Path::new(".snappy");
     let snaps_dir = snap_dir.join("snaps");
@@ -8,32 +11,26 @@ fn populate_working_directory(hash: &str, partial_path: &Path) {
         panic!("fatal: not a snappy repository");
     }
 
-    let hash_dir = snaps_dir.join(&hash[0..2]);
-    let hash_file = hash_dir.join(&hash[2..]);
-
+    let hash_file = snaps_dir.join(hash::get_hash_dir(&hash));
     if !hash_file.exists() {
         panic!("fatal: object {} does not exist", &hash);
     }
 
-    let mut object_contents = read_to_string(hash_file).unwrap();
-    if object_contents.starts_with("file\0") {
-        println!("Writing to file {}", partial_path.display());
-        write(partial_path, &object_contents[5..]).unwrap();
-    } else if object_contents.starts_with("tree\0") {
+    let contents = read_to_string(hash_file).unwrap();
+    if contents.starts_with("file") {
+        let file = File::from_string(&contents);
+        write(partial_path, file.contents).unwrap();
+    } else if contents.starts_with("tree") {
         if partial_path != Path::new("") {
             println!("Creating directory {}", partial_path.display());
             create_dir_all(partial_path).unwrap();
         }
-        object_contents = object_contents[5..].to_string();
-        let mut lines = object_contents.lines();
-        while let Some(line) = lines.next() {
-            let mut parts = line.split(':');
-            let name = parts.next().unwrap();
-            let hash = parts.next().unwrap();
+        let tree = Tree::from_string(&contents);
+        let partial_path = partial_path.to_path_buf();
+        for child in tree.children {
+            let path = partial_path.join(child.name);
 
-            println!("Going into {} with hash {}", name, hash);
-            let new_path = partial_path.to_path_buf().join(name);
-            populate_working_directory(hash, &new_path);
+            populate_working_directory(hash, &path);
         }
     }
 }
@@ -47,15 +44,9 @@ pub fn checkout(commit_hash: &str) {
         panic!("fatal: not a snappy repository");
     }
 
-    let commit_hash_dir = snaps_dir.join(&commit_hash[0..2]);
-    let commit_file = commit_hash_dir.join(&commit_hash[2..]);
-    let commit_contents = read_to_string(commit_file).unwrap();
-    let mut commit_lines = commit_contents.lines();
-    let _parent = commit_lines.next().unwrap();
-    let _message = commit_lines.next().unwrap();
-    let tree_hash = commit_lines.next().unwrap();
-
-    println!("Commit tree {}", tree_hash);
+    let commit_file = snaps_dir.join(hash::get_hash_dir(&commit_hash));
+    let commit = Commit::from_file(&commit_file);
+    let tree_hash = commit.tree;
 
     let tracked_contents = read_to_string(tracked_file).unwrap();
     let mut tracked_objects = tracked_contents.lines();
@@ -72,7 +63,7 @@ pub fn checkout(commit_hash: &str) {
         }
     }
 
-    populate_working_directory(tree_hash, Path::new(""));
+    populate_working_directory(&tree_hash, Path::new(""));
 
     write(head_file, commit_hash.as_bytes()).unwrap();
 }
