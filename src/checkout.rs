@@ -30,7 +30,7 @@ fn populate_working_directory(hash: &str, partial_path: &Path) {
         for child in tree.children {
             let path = partial_path.join(child.name);
 
-            populate_working_directory(hash, &path);
+            populate_working_directory(&child.hash, &path);
         }
     }
 }
