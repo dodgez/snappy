@@ -32,7 +32,7 @@ impl File {
         File { contents, hash }
     }
 
-    pub fn from_file(path: &Path) -> File {
+    pub fn _from_file(path: &Path) -> File {
         if !path.exists() {
             panic!("fatal: object does not exist {}", path.display());
         }
@@ -81,7 +81,7 @@ impl Tree {
         Tree { children, hash }
     }
 
-    pub fn from_file(path: &Path) -> Tree {
+    pub fn _from_file(path: &Path) -> Tree {
         if !path.exists() {
             panic!("fatal: object does not exist {}", path.display());
         }
@@ -103,11 +103,11 @@ impl Tree {
         Tree { children, hash }
     }
 
-    pub fn get_hash_path(&self) -> PathBuf {
+    pub fn _get_hash_path(&self) -> PathBuf {
         return hash::get_hash_path(&self.hash);
     }
 
-    pub fn write_to_file(&self, path: &Path) {
+    pub fn _write_to_file(&self, path: &Path) {
         let mut raw_children = Vec::<String>::new();
         for child in &self.children {
             raw_children.push(child.to_string());
