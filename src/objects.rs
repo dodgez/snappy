@@ -29,10 +29,7 @@ impl File {
     pub fn new(contents: String) -> File {
         let hash = hash::hash(&format!("file\n{}", contents));
 
-        File {
-            contents,
-            hash,
-        }
+        File { contents, hash }
     }
 
     pub fn from_file(path: &Path) -> File {
@@ -47,14 +44,11 @@ impl File {
     pub fn from_string(contents: &str) -> File {
         let hash = hash::hash(contents);
         let contents = contents[5..].to_string();
-        File {
-            contents,
-            hash,
-        }
+        File { contents, hash }
     }
 
     pub fn get_hash_path(&self) -> PathBuf {
-        return hash::get_hash_dir(&self.hash);
+        return hash::get_hash_path(&self.hash);
     }
 
     pub fn write_to_file(&self, path: &Path) {
@@ -68,10 +62,7 @@ impl TreeEntry {
         let name = parts.next().unwrap().to_string();
         let hash = parts.next().unwrap().to_string();
 
-        TreeEntry {
-            hash,
-            name,
-        }
+        TreeEntry { hash, name }
     }
 
     pub fn to_string(&self) -> String {
@@ -80,12 +71,12 @@ impl TreeEntry {
 }
 
 impl Tree {
-    pub fn new(raw_children: Vec<String>) -> Tree {
-        let hash = hash::hash(&format!("tree\n{}", raw_children.join("\n")));
-        let children = Vec::<TreeEntry>::new();
-        for child in raw_children {
-            children.push(TreeEntry::from_string(&child));
+    pub fn new(children: Vec<TreeEntry>) -> Tree {
+        let mut raw_children = Vec::<String>::new();
+        for child in &children {
+            raw_children.push(child.to_string());
         }
+        let hash = hash::hash(&format!("tree\n{}", raw_children.join("\n")));
 
         Tree { children, hash }
     }
@@ -109,23 +100,24 @@ impl Tree {
             children.push(TreeEntry::from_string(line));
         }
 
-        Tree {
-            children,
-            hash,
-        }
+        Tree { children, hash }
     }
 
     pub fn get_hash_path(&self) -> PathBuf {
-        return hash::get_hash_dir(&self.hash);
+        return hash::get_hash_path(&self.hash);
     }
 
     pub fn write_to_file(&self, path: &Path) {
-        let raw_children = Vec::<String>::new();
-        for child in self.children {
+        let mut raw_children = Vec::<String>::new();
+        for child in &self.children {
             raw_children.push(child.to_string());
         }
 
-        write(path, format!("tree\n{}", raw_children.join("\n")).as_bytes()).unwrap();
+        write(
+            path,
+            format!("tree\n{}", raw_children.join("\n")).as_bytes(),
+        )
+        .unwrap();
     }
 }
 
@@ -166,11 +158,15 @@ impl Commit {
         }
     }
 
-    fn get_hash_path(&self) -> PathBuf {
-        return hash::get_hash_dir(&self.hash);
+    pub fn get_hash_path(&self) -> PathBuf {
+        return hash::get_hash_path(&self.hash);
     }
 
-    fn write_to_file(&self, path: &Path) {
-        write(path, format!("commit\n{}\n{}\n{}", self.parent, self.message, self.tree).as_bytes()).unwrap();
+    pub fn write_to_file(&self, path: &Path) {
+        write(
+            path,
+            format!("commit\n{}\n{}\n{}", self.parent, self.message, self.tree).as_bytes(),
+        )
+        .unwrap();
     }
 }

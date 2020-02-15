@@ -11,7 +11,7 @@ fn populate_working_directory(hash: &str, partial_path: &Path) {
         panic!("fatal: not a snappy repository");
     }
 
-    let hash_file = snaps_dir.join(hash::get_hash_dir(&hash));
+    let hash_file = snaps_dir.join(hash::get_hash_path(&hash));
     if !hash_file.exists() {
         panic!("fatal: object {} does not exist", &hash);
     }
@@ -44,7 +44,7 @@ pub fn checkout(commit_hash: &str) {
         panic!("fatal: not a snappy repository");
     }
 
-    let commit_file = snaps_dir.join(hash::get_hash_dir(&commit_hash));
+    let commit_file = snaps_dir.join(hash::get_hash_path(&commit_hash));
     let commit = Commit::from_file(&commit_file);
     let tree_hash = commit.tree;
 
