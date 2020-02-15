@@ -103,11 +103,11 @@ impl Tree {
         Tree { children, hash }
     }
 
-    pub fn _get_hash_path(&self) -> PathBuf {
+    pub fn get_hash_path(&self) -> PathBuf {
         return hash::get_hash_path(&self.hash);
     }
 
-    pub fn _write_to_file(&self, path: &Path) {
+    pub fn write_to_file(&self, path: &Path) {
         let mut raw_children = Vec::<String>::new();
         for child in &self.children {
             raw_children.push(child.to_string());

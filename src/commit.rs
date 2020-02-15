@@ -50,6 +50,7 @@ fn recurse_dir_commit(path: &Path) -> TreeEntry {
 
     let tree = Tree::new(children);
     hash::create_hash_dir(&tree.hash, &snaps_dir);
+    tree.write_to_file(&snaps_dir.join(tree.get_hash_path()));
 
     TreeEntry {
         name: path.file_name().unwrap().to_str().unwrap().to_owned(),
@@ -95,7 +96,7 @@ pub fn commit(message: &str) {
         tree.hash,
     );
     hash::create_hash_dir(&commit.hash, &snaps_dir);
-    commit.write_to_file(&commit.get_hash_path());
+    commit.write_to_file(&snaps_dir.join(commit.get_hash_path()));
 
     remove_dir_all(temp_dir).unwrap();
     write(head_file, commit.hash.as_bytes()).unwrap();
