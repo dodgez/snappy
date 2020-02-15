@@ -17,7 +17,7 @@ pub fn log() {
         let hash_path = snaps_dir.join(hash::get_hash_path(&commit_hash));
         let commit = Commit::from_file(&hash_path);
         println!(
-            "Commit {}\n Parent {}\nMessage {}\nTree {}\n",
+            "Commit: {}\nParent: {}\nMessage: {}\nTree: {}\n",
             commit.hash, commit.parent, commit.message, commit.tree
         );
 
