@@ -1,7 +1,8 @@
 use std::fs::{create_dir_all, read_to_string, remove_dir_all, remove_file, write};
 use std::path::Path;
 
-use crate::hash;
+use crate::branch::update_head;
+use crate::hash::get_hash_path;
 use crate::objects::{Commit, File, Tree};
 
 fn populate_working_directory(hash: &str, partial_path: &Path) {
@@ -11,7 +12,7 @@ fn populate_working_directory(hash: &str, partial_path: &Path) {
         panic!("fatal: not a snappy repository");
     }
 
-    let hash_file = snaps_dir.join(hash::get_hash_path(&hash));
+    let hash_file = snaps_dir.join(get_hash_path(&hash));
     if !hash_file.exists() {
         panic!("fatal: object {} does not exist", &hash);
     }
@@ -38,13 +39,18 @@ fn populate_working_directory(hash: &str, partial_path: &Path) {
 pub fn checkout(commit_hash: &str) {
     let snap_dir = Path::new(".snappy");
     let snaps_dir = snap_dir.join("snaps");
-    let head_file = snap_dir.join("HEAD");
+    let branches_dir = snap_dir.join("branches");
     let tracked_file = snap_dir.join("tracked");
     if !snap_dir.exists() {
         panic!("fatal: not a snappy repository");
     }
 
-    let commit_file = snaps_dir.join(hash::get_hash_path(&commit_hash));
+    let mut commit = commit_hash.to_string();
+    let branch_file = branches_dir.join(commit_hash);
+    if branch_file.exists() {
+        commit = read_to_string(branch_file).unwrap();
+    }
+    let commit_file = snaps_dir.join(get_hash_path(&commit));
     let commit = Commit::from_file(&commit_file);
     let tree_hash = commit.tree;
 
@@ -65,5 +71,5 @@ pub fn checkout(commit_hash: &str) {
 
     populate_working_directory(&tree_hash, Path::new(""));
 
-    write(head_file, commit_hash.as_bytes()).unwrap();
+    update_head(commit_hash);
 }
