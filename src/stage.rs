@@ -1,15 +1,13 @@
 use glob::Pattern;
-use sha2::{Digest, Sha256};
-use std::fs::{create_dir_all, read_dir, read_to_string, File};
-use std::io::prelude::*;
+use std::fs::{read_dir, read_to_string};
 use std::path::Path;
 
-use crate::index;
+use crate::objects::File;
+use crate::{hash, index};
 
 fn stage_file(path: &Path) {
     let snap_dir = Path::new(".snappy");
     let snaps_dir = snap_dir.join("snaps");
-
     if !snap_dir.exists() {
         panic!("fatal: not a snappy repository");
     }
@@ -17,22 +15,11 @@ fn stage_file(path: &Path) {
         panic!("fatal: only relative paths are supported");
     }
 
-    let mut hasher = Sha256::default();
-    let mut data = Vec::<u8>::new();
-    File::open(path).unwrap().read_to_end(&mut data).unwrap();
-    hasher.input(&data);
-    let hash = format!("{:x}", hasher.result());
+    let file = File::new(read_to_string(path).unwrap());
+    hash::create_hash_dir(&file.hash, &snaps_dir);
+    file.write_to_file(&snaps_dir.join(file.get_hash_path()));
 
-    let hash_dir = snaps_dir.join(&hash[0..2]);
-    if !hash_dir.exists() {
-        create_dir_all(&hash_dir).unwrap();
-    }
-    let file_path = hash_dir.join(&hash[2..]);
-    let mut file = File::create(file_path).unwrap();
-    file.write("file\0".as_bytes()).unwrap();
-    file.write(&data).unwrap();
-
-    index::update_index(path, &hash);
+    index::update_index(path, &file.hash);
 }
 
 fn stage_dir(path: &Path) {

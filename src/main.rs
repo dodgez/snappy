@@ -3,8 +3,10 @@ use std::path::Path;
 
 mod checkout;
 mod commit;
+mod hash;
 mod index;
 mod log;
+mod objects;
 mod repo;
 mod stage;
 
