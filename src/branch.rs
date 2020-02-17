@@ -51,7 +51,6 @@ pub fn update_branch(commit: &str) {
 
 pub fn update_head(commit: &str) {
     let snap_dir = Path::new(".snappy");
-    let snaps_dir = snap_dir.join("snaps");
     let head_file = snap_dir.join("HEAD");
     if !snap_dir.exists() {
         panic!("fatal: not a snappy repository");
