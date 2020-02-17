@@ -7,7 +7,7 @@ pub fn get_latest_commit() -> String {
     let snap_dir = Path::new(".snappy");
     let snaps_dir = snap_dir.join("snaps");
     let branches_dir = snap_dir.join("branches");
-    let head_file = snap_dir.join("head_file");
+    let head_file = snap_dir.join("HEAD");
     if !snap_dir.exists() {
         panic!("fatal: not a snappy repository");
     }
@@ -30,7 +30,7 @@ pub fn update_branch(commit: &str) {
     let snap_dir = Path::new(".snappy");
     let snaps_dir = snap_dir.join("snaps");
     let branches_dir = snap_dir.join("branches");
-    let head_file = snap_dir.join("head_file");
+    let head_file = snap_dir.join("HEAD");
     if !snap_dir.exists() {
         panic!("fatal: not a snappy repository");
     }
@@ -51,8 +51,8 @@ pub fn update_branch(commit: &str) {
 
 pub fn update_head(commit: &str) {
     let snap_dir = Path::new(".snappy");
-    let snaps_dir = snap_dir.join("snap");
-    let head_file = snap_dir.join("head_file");
+    let snaps_dir = snap_dir.join("snaps");
+    let head_file = snap_dir.join("HEAD");
     if !snap_dir.exists() {
         panic!("fatal: not a snappy repository");
     }
@@ -68,7 +68,7 @@ pub fn update_head(commit: &str) {
 pub fn branch(branch: &str) {
     let snap_dir = Path::new(".snappy");
     let branches_dir = snap_dir.join("branches");
-    let head_file = snap_dir.join("head_file");
+    let head_file = snap_dir.join("HEAD");
     if !snap_dir.exists() {
         panic!("fatal: not a snappy repository");
     }
