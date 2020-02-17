@@ -59,7 +59,7 @@ fn recurse_dir_commit(path: &Path) -> TreeEntry {
     }
 }
 
-pub fn commit(message: &str) {
+pub fn commit(message: &str) -> String {
     let snap_dir = Path::new(".snappy");
     let snaps_dir = snap_dir.join("snaps");
     let temp_dir = snap_dir.join("commit-temp");
@@ -90,16 +90,12 @@ pub fn commit(message: &str) {
     }
 
     let tree = recurse_dir_commit(&temp_dir);
-    let commit = Commit::new(
-        get_latest_commit(),
-        message.to_string(),
-        tree.hash,
-    );
+    let commit = Commit::new(get_latest_commit(), message.to_string(), tree.hash);
     hash::create_hash_dir(&commit.hash, &snaps_dir);
     commit.write_to_file(&snaps_dir.join(commit.get_hash_path()));
 
     remove_dir_all(temp_dir).unwrap();
     update_branch(&commit.hash);
 
-    println!("{}", commit.hash);
+    return commit.hash;
 }

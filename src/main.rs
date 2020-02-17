@@ -1,15 +1,7 @@
 use clap::{App, AppSettings, Arg, SubCommand};
 use std::path::Path;
 
-mod branch;
-mod checkout;
-mod commit;
-mod hash;
-mod index;
-mod log;
-mod objects;
-mod repo;
-mod stage;
+use snappy::{branch, checkout, commit, log, repo, stage};
 
 fn main() {
     let matches = App::new("Snappy")
@@ -70,7 +62,7 @@ fn main() {
     } else if let Some(matches) = matches.subcommand_matches("add") {
         stage::stage(&Path::new(matches.value_of("object_to_stage").unwrap()));
     } else if let Some(matches) = matches.subcommand_matches("commit") {
-        commit::commit(matches.value_of("commit_message").unwrap());
+        println!("{}", commit::commit(matches.value_of("commit_message").unwrap()));
     } else if let Some(matches) = matches.subcommand_matches("checkout") {
         checkout::checkout(matches.value_of("commit_hash").unwrap());
     } else if let Some(_matches) = matches.subcommand_matches("log") {

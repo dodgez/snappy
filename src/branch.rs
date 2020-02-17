@@ -7,7 +7,7 @@ pub fn get_latest_commit() -> String {
     let snap_dir = Path::new(".snappy");
     let snaps_dir = snap_dir.join("snaps");
     let branches_dir = snap_dir.join("branches");
-    let head_file = snap_dir.join("head_file");
+    let head_file = snap_dir.join("HEAD");
     if !snap_dir.exists() {
         panic!("fatal: not a snappy repository");
     }
@@ -30,7 +30,7 @@ pub fn update_branch(commit: &str) {
     let snap_dir = Path::new(".snappy");
     let snaps_dir = snap_dir.join("snaps");
     let branches_dir = snap_dir.join("branches");
-    let head_file = snap_dir.join("head_file");
+    let head_file = snap_dir.join("HEAD");
     if !snap_dir.exists() {
         panic!("fatal: not a snappy repository");
     }
@@ -51,15 +51,10 @@ pub fn update_branch(commit: &str) {
 
 pub fn update_head(commit: &str) {
     let snap_dir = Path::new(".snappy");
-    let snaps_dir = snap_dir.join("snap");
-    let head_file = snap_dir.join("head_file");
+    let snaps_dir = snap_dir.join("snaps");
+    let head_file = snap_dir.join("HEAD");
     if !snap_dir.exists() {
         panic!("fatal: not a snappy repository");
-    }
-
-    let commit_file = snaps_dir.join(get_hash_path(&commit));
-    if !commit_file.exists() {
-        panic!("fatal: commit {} does not exist", commit);
     }
 
     write(head_file, commit.as_bytes()).unwrap();
@@ -68,7 +63,7 @@ pub fn update_head(commit: &str) {
 pub fn branch(branch: &str) {
     let snap_dir = Path::new(".snappy");
     let branches_dir = snap_dir.join("branches");
-    let head_file = snap_dir.join("head_file");
+    let head_file = snap_dir.join("HEAD");
     if !snap_dir.exists() {
         panic!("fatal: not a snappy repository");
     }
