@@ -3,7 +3,7 @@ use snappy::checkout::checkout;
 use snappy::commit::commit;
 use snappy::stage::stage;
 use snappy::repo::init;
-use std::fs::{create_dir_all, read_to_string, write};
+use std::fs::{create_dir_all, read_to_string, remove_dir_all, write};
 use std::path::Path;
 
 #[test]
@@ -24,6 +24,8 @@ fn test_checkout() {
     commit("Delete test-checkout-file data");
 
     checkout(&hash);
+    let contents = read_to_string(new_file).unwrap();
+    remove_dir_all(new_dir).unwrap();
+    assert_eq!(contents, new_data);
     assert_eq!(hash, get_latest_commit());
-    assert_eq!(read_to_string(new_file).unwrap(), new_data);
 }
