@@ -1,6 +1,7 @@
 use clap::{App, AppSettings, Arg, SubCommand};
 use std::path::Path;
 
+mod branch;
 mod checkout;
 mod commit;
 mod hash;
@@ -52,6 +53,15 @@ fn main() {
                         .required(true),
                 ),
         )
+        .subcommand(
+            SubCommand::with_name("branch")
+                .about("Create a new branch")
+                .arg(
+                    Arg::with_name("branch_name")
+                        .help("The name of the new branch")
+                        .required(true),
+                ),
+        )
         .subcommand(SubCommand::with_name("log").about("Output the linear history of HEAD"))
         .get_matches();
 
@@ -65,5 +75,7 @@ fn main() {
         checkout::checkout(matches.value_of("commit_hash").unwrap());
     } else if let Some(_matches) = matches.subcommand_matches("log") {
         log::log();
+    } else if let Some(matches) = matches.subcommand_matches("branch") {
+        branch::branch(matches.value_of("branch_name").unwrap());
     }
 }

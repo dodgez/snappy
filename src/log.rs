@@ -1,18 +1,17 @@
-use std::fs::read_to_string;
 use std::path::Path;
 
+use crate::branch::get_latest_commit;
 use crate::hash;
 use crate::objects::Commit;
 
 pub fn log() {
     let snap_dir = Path::new(".snappy");
     let snaps_dir = snap_dir.join("snaps");
-    let head_file = snap_dir.join("HEAD");
     if !snap_dir.exists() {
         panic!("fatal: not a snappy repository");
     }
 
-    let mut commit_hash = read_to_string(head_file).unwrap();
+    let mut commit_hash = get_latest_commit();
     while commit_hash != "0" {
         let hash_path = snaps_dir.join(hash::get_hash_path(&commit_hash));
         let commit = Commit::from_file(&hash_path);

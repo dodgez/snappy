@@ -1,6 +1,7 @@
 use std::fs::{create_dir_all, read_dir, read_to_string, remove_dir_all, write, File};
 use std::path::Path;
 
+use crate::branch::{get_latest_commit, update_branch};
 use crate::hash;
 use crate::objects::{Commit, Tree, TreeEntry};
 
@@ -62,7 +63,6 @@ pub fn commit(message: &str) {
     let snap_dir = Path::new(".snappy");
     let snaps_dir = snap_dir.join("snaps");
     let temp_dir = snap_dir.join("commit-temp");
-    let head_file = snap_dir.join("HEAD");
     let index_file = snap_dir.join("index");
     if !snap_dir.exists() {
         panic!("fatal: not a snappy repository");
@@ -91,7 +91,7 @@ pub fn commit(message: &str) {
 
     let tree = recurse_dir_commit(&temp_dir);
     let commit = Commit::new(
-        read_to_string(&head_file).unwrap(),
+        get_latest_commit(),
         message.to_string(),
         tree.hash,
     );
@@ -99,7 +99,7 @@ pub fn commit(message: &str) {
     commit.write_to_file(&snaps_dir.join(commit.get_hash_path()));
 
     remove_dir_all(temp_dir).unwrap();
-    write(head_file, commit.hash.as_bytes()).unwrap();
+    update_branch(&commit.hash);
 
     println!("{}", commit.hash);
 }
