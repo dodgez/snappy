@@ -57,11 +57,6 @@ pub fn update_head(commit: &str) {
         panic!("fatal: not a snappy repository");
     }
 
-    let commit_file = snaps_dir.join(get_hash_path(&commit));
-    if !commit_file.exists() {
-        panic!("fatal: commit {} does not exist", commit);
-    }
-
     write(head_file, commit.as_bytes()).unwrap();
 }
 
