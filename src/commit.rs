@@ -90,11 +90,7 @@ pub fn commit(message: &str) {
     }
 
     let tree = recurse_dir_commit(&temp_dir);
-    let commit = Commit::new(
-        get_latest_commit(),
-        message.to_string(),
-        tree.hash,
-    );
+    let commit = Commit::new(get_latest_commit(), message.to_string(), tree.hash);
     hash::create_hash_dir(&commit.hash, &snaps_dir);
     commit.write_to_file(&snaps_dir.join(commit.get_hash_path()));
 

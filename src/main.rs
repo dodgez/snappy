@@ -1,15 +1,7 @@
 use clap::{App, AppSettings, Arg, SubCommand};
 use std::path::Path;
 
-mod branch;
-mod checkout;
-mod commit;
-mod hash;
-mod index;
-mod log;
-mod objects;
-mod repo;
-mod stage;
+use snappy::{branch, checkout, commit, log, repo, stage};
 
 fn main() {
     let matches = App::new("Snappy")
