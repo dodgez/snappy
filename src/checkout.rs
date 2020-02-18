@@ -1,4 +1,4 @@
-use std::fs::{create_dir_all, read_to_string, remove_dir_all, remove_file, write};
+use std::fs::{create_dir_all, read_to_string, remove_dir, remove_file, write};
 use std::path::Path;
 
 use crate::branch::update_head;
@@ -68,10 +68,20 @@ pub fn checkout(commit_hash: &str) {
         if path.exists() {
             if path.is_dir() {
                 println!("Deleting directory {}", path.display());
-                remove_dir_all(path).unwrap();
+                match remove_dir(path) {
+                    Ok(_) => (),
+                    Err(_) => (),
+                }
             } else if path.is_file() {
                 println!("Deleting file {}", path.display());
                 remove_file(path).unwrap();
+
+                if let Some(parent) = path.parent() {
+                    match remove_dir(parent) {
+                        Ok(_) => (),
+                        Err(_) => (),
+                    }
+                }
             }
         }
     }
