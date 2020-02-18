@@ -29,7 +29,10 @@ fn test_branch() {
     create_dir_all(&new_dir).unwrap();
     write(&new_file, &new_data.as_bytes()).unwrap();
 
-    stage(&new_file);
+    match stage(&new_file) {
+        Ok(_) => (),
+        Err(e) => panic!(e),
+    }
     let hash = match commit("Add test-checkout-file", "Author") {
         Ok(latest_hash) => latest_hash,
         Err(e) => panic!(e),

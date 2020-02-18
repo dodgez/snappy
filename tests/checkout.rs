@@ -16,14 +16,20 @@ fn test_checkout() {
     create_dir_all(&new_dir).unwrap();
     write(&new_file, &new_data.as_bytes()).unwrap();
 
-    stage(&new_file);
+    match stage(&new_file) {
+        Ok(_) => (),
+        Err(e) => panic!(e),
+    }
     let hash = match commit("Add test-checkout-file", "Author") {
         Ok(hash) => hash,
         Err(e) => panic!(e),
     };
 
     write(&new_file, "".as_bytes()).unwrap();
-    stage(&new_file);
+    match stage(&new_file) {
+        Ok(_) => (),
+        Err(e) => panic!(e),
+    }
     match commit("Delete test-checkout-file data", "Author") {
         Ok(_) => (),
         Err(e) => panic!(e),

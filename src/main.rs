@@ -72,7 +72,11 @@ fn main() {
     if let Some(matches) = matches.subcommand_matches("init") {
         repo::init(matches.is_present("force"));
     } else if let Some(matches) = matches.subcommand_matches("add") {
-        stage::stage(&Path::new(matches.value_of("object_to_stage").unwrap()));
+        let object = matches.value_of("object_to_stage").unwrap();
+        match stage::stage(&Path::new(object)) {
+            Ok(_) => (),
+            Err(e) => panic!(e),
+        }
     } else if let Some(matches) = matches.subcommand_matches("commit") {
         let message = matches.value_of("commit_message").unwrap();
         let author = matches.value_of("author_name").unwrap();

@@ -1,11 +1,13 @@
 use glob::Pattern;
 use std::fs::{read_dir, read_to_string};
+use std::io;
 use std::path::Path;
 
 use crate::objects::File;
-use crate::{hash, index};
+use crate::hash::create_hash_dir;
+use crate::index::update_index;
 
-fn stage_file(path: &Path) {
+fn stage_file(path: &Path) -> Result<(), io::Error> {
     let snap_dir = Path::new(".snappy");
     let snaps_dir = snap_dir.join("snaps");
     if !snap_dir.exists() {
@@ -15,42 +17,48 @@ fn stage_file(path: &Path) {
         panic!("fatal: only relative paths are supported");
     }
 
-    let file = File::new(read_to_string(path).unwrap());
-    hash::create_hash_dir(&file.hash, &snaps_dir);
+    let file = File::new(read_to_string(path)?);
+    create_hash_dir(&file.hash, &snaps_dir)?;
     file.write_to_file(&snaps_dir.join(file.get_hash_path()));
 
-    index::update_index(path, &file.hash);
+    update_index(path, &file.hash);
+
+    Ok(())
 }
 
-fn stage_dir(path: &Path) {
-    let mut iter = read_dir(path).unwrap();
+fn stage_dir(path: &Path) -> Result<(), io::Error> {
+    let mut iter = read_dir(path)?;
     while let Some(dir_entry) = iter.next() {
-        let path = dir_entry.unwrap().path();
+        let path = dir_entry?.path();
         if !path.display().to_string().contains(".snappy") {
-            stage(&path);
+            stage(&path)?;
         }
     }
+
+    Ok(())
 }
 
-pub fn stage(path: &Path) {
+pub fn stage(path: &Path) -> Result<(), io::Error> {
     if !path.exists() {
         panic!("fatal: object does not exist {}", path.display());
     }
 
     let ignore_file = Path::new(".snapignore");
     if ignore_file.exists() {
-        let contents = read_to_string(&ignore_file).unwrap();
+        let contents = read_to_string(&ignore_file)?;
         let mut lines = contents.lines();
         while let Some(line) = lines.next() {
             let ignored = Pattern::new(&line).unwrap();
             if ignored.matches_path(&path) {
-                return;
+                return Ok(());
             }
         }
     }
     if path.is_dir() {
-        stage_dir(path);
+        stage_dir(path)?;
     } else if path.is_file() {
-        stage_file(path);
+        stage_file(path)?;
     }
+
+    Ok(())
 }

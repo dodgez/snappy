@@ -3,7 +3,7 @@ use std::io;
 use std::path::Path;
 
 use crate::branch::{get_latest_commit, update_branch};
-use crate::hash;
+use crate::hash::create_hash_dir;
 use crate::objects::{Commit, Tree, TreeEntry};
 
 fn track_object(path: &Path) -> Result<(), io::Error> {
@@ -53,7 +53,7 @@ fn recurse_dir_commit(path: &Path) -> Result<TreeEntry, io::Error> {
     }
 
     let tree = Tree::new(children);
-    hash::create_hash_dir(&tree.hash, &snaps_dir);
+    create_hash_dir(&tree.hash, &snaps_dir)?;
     tree.write_to_file(&snaps_dir.join(tree.get_hash_path()));
 
     Ok(TreeEntry {
@@ -94,7 +94,7 @@ pub fn commit(message: &str, author: &str) -> Result<String, io::Error> {
 
     let tree = recurse_dir_commit(&temp_dir)?;
     let commit = Commit::new(get_latest_commit()?, message.to_string(), author.to_string(), tree.hash);
-    hash::create_hash_dir(&commit.hash, &snaps_dir);
+    create_hash_dir(&commit.hash, &snaps_dir)?;
     commit.write_to_file(&snaps_dir.join(commit.get_hash_path()));
 
     remove_dir_all(temp_dir)?;

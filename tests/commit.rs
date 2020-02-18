@@ -8,7 +8,10 @@ use std::path::Path;
 fn test_commit() {
     init(true);
 
-    stage(Path::new("./tests/commit.rs"));
+    match stage(Path::new("./tests/commit.rs")) {
+        Ok(_) => (),
+        Err(e) => panic!(e),
+    }
     let hash = match commit("Test message", "Author") {
         Ok(commit_hash) => commit_hash,
         Err(e) => panic!(e),
