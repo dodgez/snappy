@@ -76,7 +76,10 @@ fn main() {
     } else if let Some(matches) = matches.subcommand_matches("commit") {
         println!("{}", commit::commit(matches.value_of("commit_message").unwrap(), matches.value_of("author_name").unwrap()));
     } else if let Some(matches) = matches.subcommand_matches("checkout") {
-        checkout::checkout(matches.value_of("commit_hash").unwrap());
+        match checkout::checkout(matches.value_of("commit_hash").unwrap()) {
+            Ok(_) => (),
+            Err(e) => panic!(e),
+        }
     } else if let Some(_matches) = matches.subcommand_matches("log") {
         log::log();
     } else if let Some(matches) = matches.subcommand_matches("branch") {

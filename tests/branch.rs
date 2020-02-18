@@ -26,11 +26,17 @@ fn test_branch() {
     stage(&new_file);
     let hash = commit("Add test-checkout-file", "Author");
 
-    checkout("master");
+    match checkout("master") {
+        Ok(_) => (),
+        Err(e) => panic!(e),
+    }
     assert_eq!(new_dir.exists(), false);
     assert_eq!(new_file.exists(), false);
 
-    checkout("test");
+    match checkout("test") {
+        Ok(_) => (),
+        Err(e) => panic!(e),
+    }
     assert_eq!(new_dir.exists(), true);
     assert_eq!(new_file.exists(), true);
 

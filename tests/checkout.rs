@@ -23,7 +23,10 @@ fn test_checkout() {
     stage(&new_file);
     commit("Delete test-checkout-file data", "Author");
 
-    checkout(&hash);
+    match checkout(&hash) {
+        Ok(_) => (),
+        Err(e) => panic!(e),
+    }
     let contents = read_to_string(new_file).unwrap();
     remove_dir_all(new_dir).unwrap();
     assert_eq!(contents, new_data);
