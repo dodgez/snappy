@@ -128,7 +128,10 @@ impl Tree {
 
 impl Commit {
     pub fn new(parent: String, message: String, author: String, tree: String) -> Commit {
-        let hash = hash::hash(&format!("commit\n{}\n{}\n{}\n{}", parent, message, author, tree));
+        let hash = hash::hash(&format!(
+            "commit\n{}\n{}\n{}\n{}",
+            parent, message, author, tree
+        ));
 
         Commit {
             parent,
@@ -173,7 +176,11 @@ impl Commit {
     pub fn write_to_file(&self, path: &Path) -> Result<(), io::Error> {
         write(
             path,
-            format!("commit\n{}\n{}\n{}\n{}", self.parent, self.message, self.author, self.tree).as_bytes(),
+            format!(
+                "commit\n{}\n{}\n{}\n{}",
+                self.parent, self.message, self.author, self.tree
+            )
+            .as_bytes(),
         )?;
 
         Ok(())

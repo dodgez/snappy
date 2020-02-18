@@ -23,14 +23,8 @@ pub fn init(force: bool) -> Result<(), io::Error> {
     create_dir_all(snaps_dir)?;
     create_dir_all(branches_dir)?;
 
-    File::create(master_branch_file)
-        ?
-        .write("0".as_bytes())
-        ?;
-    File::create(head_file)
-        ?
-        .write("master".as_bytes())
-        ?;
+    File::create(master_branch_file)?.write("0".as_bytes())?;
+    File::create(head_file)?.write("master".as_bytes())?;
     File::create(index_file)?;
     File::create(tracked_file)?;
 

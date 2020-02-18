@@ -1,8 +1,8 @@
 use snappy::branch::get_latest_commit;
 use snappy::checkout::checkout;
 use snappy::commit::commit;
-use snappy::stage::stage;
 use snappy::repo::init;
+use snappy::stage::stage;
 use std::fs::{create_dir_all, read_to_string, remove_dir_all, write};
 use std::path::Path;
 

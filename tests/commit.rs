@@ -1,7 +1,7 @@
 use snappy::branch::get_latest_commit;
 use snappy::commit::commit;
-use snappy::stage::stage;
 use snappy::repo::init;
+use snappy::stage::stage;
 use std::path::Path;
 
 #[test]

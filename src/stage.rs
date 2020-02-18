@@ -3,9 +3,9 @@ use std::fs::{read_dir, read_to_string};
 use std::io;
 use std::path::Path;
 
-use crate::objects::File;
 use crate::hash::create_hash_dir;
 use crate::index::update_index;
+use crate::objects::File;
 
 fn stage_file(path: &Path) -> Result<(), io::Error> {
     let snap_dir = Path::new(".snappy");

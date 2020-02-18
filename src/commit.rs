@@ -93,7 +93,12 @@ pub fn commit(message: &str, author: &str) -> Result<String, io::Error> {
     }
 
     let tree = recurse_dir_commit(&temp_dir)?;
-    let commit = Commit::new(get_latest_commit()?, message.to_string(), author.to_string(), tree.hash);
+    let commit = Commit::new(
+        get_latest_commit()?,
+        message.to_string(),
+        author.to_string(),
+        tree.hash,
+    );
     create_hash_dir(&commit.hash, &snaps_dir)?;
     commit.write_to_file(&snaps_dir.join(commit.get_hash_path()))?;
 
