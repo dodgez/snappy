@@ -1,10 +1,11 @@
 use clap::{App, AppSettings, Arg, SubCommand};
+use std::io;
 use std::path::Path;
 use whoami::username;
 
 use snappy::{branch, checkout, commit, log, repo, stage};
 
-fn main() {
+fn main() -> Result<(), io::Error> {
     let name = username();
 
     let matches = App::new("Snappy")
@@ -70,37 +71,21 @@ fn main() {
         .get_matches();
 
     if let Some(matches) = matches.subcommand_matches("init") {
-        match repo::init(matches.is_present("force")) {
-            Ok(_) => (),
-            Err(e) => panic!(e),
-        }
+        repo::init(matches.is_present("force"))?;
     } else if let Some(matches) = matches.subcommand_matches("add") {
         let object = matches.value_of("object_to_stage").unwrap();
-        match stage::stage(&Path::new(object)) {
-            Ok(_) => (),
-            Err(e) => panic!(e),
-        }
+        stage::stage(&Path::new(object))?;
     } else if let Some(matches) = matches.subcommand_matches("commit") {
         let message = matches.value_of("commit_message").unwrap();
         let author = matches.value_of("author_name").unwrap();
-        match commit::commit(message, author) {
-            Ok(hash) => println!("{}", hash),
-            Err(e) => panic!(e),
-        }
+        println!("{}", commit::commit(message, author)?);
     } else if let Some(matches) = matches.subcommand_matches("checkout") {
-        match checkout::checkout(matches.value_of("commit_hash").unwrap()) {
-            Ok(_) => (),
-            Err(e) => panic!(e),
-        }
+        checkout::checkout(matches.value_of("commit_hash").unwrap())?;
     } else if let Some(_matches) = matches.subcommand_matches("log") {
-        match log::log() {
-            Ok(_) => (),
-            Err(e) => panic!(e),
-        }
+        log::log()?;
     } else if let Some(matches) = matches.subcommand_matches("branch") {
-        match branch::branch(matches.value_of("branch_name").unwrap()) {
-            Ok(_) => (),
-            Err(e) => panic!(e),
-        }
+        branch::branch(matches.value_of("branch_name").unwrap())?;
     }
+
+    Ok(())
 }

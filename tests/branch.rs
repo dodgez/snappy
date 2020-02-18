@@ -4,62 +4,41 @@ use snappy::commit::commit;
 use snappy::repo::init;
 use snappy::stage::stage;
 use std::fs::{create_dir_all, read_to_string, remove_dir_all, write};
+use std::io;
 use std::path::Path;
 
 #[test]
-fn test_branch() {
+fn test_branch() -> Result<(), io::Error> {
     let snap_dir = Path::new(".snappy");
     let head_file = snap_dir.join("HEAD");
-    match init(true) {
-        Ok(_) => (),
-        Err(e) => panic!(e),
-    }
+    init(true)?;
 
-    match commit("Basic", "Author") {
-        Ok(_) => (),
-        Err(e) => panic!(e),
-    }
+    commit("Basic", "Author")?;
 
-    match branch("test") {
-        Ok(_) => (),
-        Err(e) => panic!(e),
-    }
-    assert_eq!(read_to_string(head_file).unwrap(), "test");
+    branch("test")?;
+    assert_eq!(read_to_string(head_file)?, "test");
 
     let new_dir = Path::new("./test-checkout-folder/");
     let new_file = new_dir.join("test-checkout-file");
     let new_data = "Test data";
-    create_dir_all(&new_dir).unwrap();
-    write(&new_file, &new_data.as_bytes()).unwrap();
+    create_dir_all(&new_dir)?;
+    write(&new_file, &new_data.as_bytes())?;
 
-    match stage(&new_file) {
-        Ok(_) => (),
-        Err(e) => panic!(e),
-    }
-    let hash = match commit("Add test-checkout-file", "Author") {
-        Ok(latest_hash) => latest_hash,
-        Err(e) => panic!(e),
-    };
+    stage(&new_file)?;
+    let hash = commit("Add test-checkout-file", "Author")?;
 
-    match checkout("master") {
-        Ok(_) => (),
-        Err(e) => panic!(e),
-    }
+    checkout("master")?;
     assert_eq!(new_dir.exists(), false);
     assert_eq!(new_file.exists(), false);
 
-    match checkout("test") {
-        Ok(_) => (),
-        Err(e) => panic!(e),
-    }
+    checkout("test")?;
     assert_eq!(new_dir.exists(), true);
     assert_eq!(new_file.exists(), true);
 
-    let contents = read_to_string(new_file).unwrap();
-    remove_dir_all(new_dir).unwrap();
+    let contents = read_to_string(new_file)?;
+    remove_dir_all(new_dir)?;
     assert_eq!(contents, new_data);
-    match get_latest_commit() {
-        Ok(latest_hash) => assert_eq!(hash, latest_hash),
-        Err(e) => panic!(e),
-    }
+    assert_eq!(hash, get_latest_commit()?);
+
+    Ok(())
 }
