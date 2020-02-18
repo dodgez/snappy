@@ -70,7 +70,10 @@ fn main() {
         .get_matches();
 
     if let Some(matches) = matches.subcommand_matches("init") {
-        repo::init(matches.is_present("force"));
+        match repo::init(matches.is_present("force")) {
+            Ok(_) => (),
+            Err(e) => panic!(e),
+        }
     } else if let Some(matches) = matches.subcommand_matches("add") {
         let object = matches.value_of("object_to_stage").unwrap();
         match stage::stage(&Path::new(object)) {

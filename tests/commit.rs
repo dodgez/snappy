@@ -6,7 +6,10 @@ use std::path::Path;
 
 #[test]
 fn test_commit() {
-    init(true);
+    match init(true) {
+        Ok(_) => (),
+        Err(e) => panic!(e),
+    }
 
     match stage(Path::new("./tests/commit.rs")) {
         Ok(_) => (),

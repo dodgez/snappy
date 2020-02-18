@@ -8,7 +8,10 @@ use std::path::Path;
 
 #[test]
 fn test_checkout() {
-    init(true);
+    match init(true) {
+        Ok(_) => (),
+        Err(e) => panic!(e),
+    }
 
     let new_dir = Path::new("./test-checkout-folder/");
     let new_file = new_dir.join("test-checkout-file");

@@ -10,7 +10,10 @@ use std::path::Path;
 fn test_branch() {
     let snap_dir = Path::new(".snappy");
     let head_file = snap_dir.join("HEAD");
-    init(true);
+    match init(true) {
+        Ok(_) => (),
+        Err(e) => panic!(e),
+    }
 
     match commit("Basic", "Author") {
         Ok(_) => (),
