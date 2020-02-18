@@ -1,9 +1,10 @@
 use std::fs::{read_to_string, write, File};
+use std::io;
 use std::path::Path;
 
 use crate::objects::TreeEntry;
 
-pub fn update_index(path: &Path, hash: &str) {
+pub fn update_index(path: &Path, hash: &str) -> Result<(), io::Error> {
     let path = if path.starts_with(".") {
         path.strip_prefix(".").unwrap()
     } else {
@@ -15,10 +16,10 @@ pub fn update_index(path: &Path, hash: &str) {
         panic!("fatal: not a snappy repository");
     }
     if !index_file.exists() {
-        File::create(&index_file).unwrap();
+        File::create(&index_file)?;
     }
 
-    let contents = read_to_string(&index_file).unwrap();
+    let contents = read_to_string(&index_file)?;
     let lines = contents.lines();
     let mut lines = lines.collect::<Vec<&str>>();
     let updated_line = &TreeEntry {
@@ -39,5 +40,7 @@ pub fn update_index(path: &Path, hash: &str) {
         lines.push(updated_line);
     }
 
-    write(index_file, lines.join("\n").as_bytes()).unwrap();
+    write(index_file, lines.join("\n").as_bytes())?;
+
+    Ok(())
 }

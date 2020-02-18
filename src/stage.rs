@@ -21,7 +21,7 @@ fn stage_file(path: &Path) -> Result<(), io::Error> {
     create_hash_dir(&file.hash, &snaps_dir)?;
     file.write_to_file(&snaps_dir.join(file.get_hash_path()));
 
-    update_index(path, &file.hash);
+    update_index(path, &file.hash)?;
 
     Ok(())
 }

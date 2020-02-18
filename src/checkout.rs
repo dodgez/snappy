@@ -22,7 +22,7 @@ fn populate_working_directory(hash: &str, partial_path: &Path) -> Result<(), io:
     let contents = read_to_string(hash_file)?;
     if contents.starts_with("file") {
         let file = File::from_string(&contents);
-        update_index(&partial_path, &hash);
+        update_index(&partial_path, &hash)?;
         write(partial_path, file.contents)?;
     } else if contents.starts_with("tree") {
         if partial_path != Path::new("") {
