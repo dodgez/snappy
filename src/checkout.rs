@@ -67,13 +67,11 @@ pub fn checkout(commit_hash: &str) {
         let path = Path::new(object);
         if path.exists() {
             if path.is_dir() {
-                println!("Deleting directory {}", path.display());
                 match remove_dir(path) {
                     Ok(_) => (),
                     Err(_) => (),
                 }
             } else if path.is_file() {
-                println!("Deleting file {}", path.display());
                 remove_file(path).unwrap();
 
                 if let Some(parent) = path.parent() {
