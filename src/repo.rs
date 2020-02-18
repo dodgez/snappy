@@ -10,7 +10,6 @@ pub fn init(force: bool) {
     let head_file = snap_dir.join("HEAD");
     let index_file = snap_dir.join("index");
     let tracked_file = snap_dir.join("tracked");
-
     if snap_dir.exists() {
         if force {
             remove_dir_all(snap_dir).unwrap();

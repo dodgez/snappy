@@ -3,6 +3,7 @@ use std::path::Path;
 
 use crate::branch::update_head;
 use crate::hash::get_hash_path;
+use crate::index::update_index;
 use crate::objects::{Commit, File, Tree};
 
 fn populate_working_directory(hash: &str, partial_path: &Path) {
@@ -20,6 +21,7 @@ fn populate_working_directory(hash: &str, partial_path: &Path) {
     let contents = read_to_string(hash_file).unwrap();
     if contents.starts_with("file") {
         let file = File::from_string(&contents);
+        update_index(&partial_path, &hash);
         write(partial_path, file.contents).unwrap();
     } else if contents.starts_with("tree") {
         if partial_path != Path::new("") {
@@ -40,9 +42,14 @@ pub fn checkout(commit_hash: &str) {
     let snap_dir = Path::new(".snappy");
     let snaps_dir = snap_dir.join("snaps");
     let branches_dir = snap_dir.join("branches");
+    let index_file = snap_dir.join("index");
     let tracked_file = snap_dir.join("tracked");
     if !snap_dir.exists() {
         panic!("fatal: not a snappy repository");
+    }
+
+    if index_file.exists() {
+        remove_file(index_file).unwrap();
     }
 
     let mut commit = commit_hash.to_string();
