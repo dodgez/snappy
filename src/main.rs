@@ -3,7 +3,7 @@ use std::io;
 use std::path::Path;
 use whoami::username;
 
-use snappy::{branch, checkout, commit, log, repo, stage};
+use snappy::{branch, checkout, commit, log, merge, repo, stage};
 
 fn main() -> Result<(), io::Error> {
     let name = username();
@@ -68,6 +68,15 @@ fn main() -> Result<(), io::Error> {
                 ),
         )
         .subcommand(SubCommand::with_name("log").about("Output the linear history of HEAD"))
+        .subcommand(
+            SubCommand::with_name("merge")
+                .about("Merge another branch into current")
+                .arg(
+                    Arg::with_name("object_name")
+                        .help("The name of the object to merge")
+                        .required(true),
+                ),
+        )
         .get_matches();
 
     if let Some(matches) = matches.subcommand_matches("init") {
@@ -85,6 +94,8 @@ fn main() -> Result<(), io::Error> {
         log::log()?;
     } else if let Some(matches) = matches.subcommand_matches("branch") {
         branch::branch(matches.value_of("branch_name").unwrap())?;
+    } else if let Some(matches) = matches.subcommand_matches("merge") {
+        merge::merge(matches.value_of("object_name").unwrap())?;
     }
 
     Ok(())

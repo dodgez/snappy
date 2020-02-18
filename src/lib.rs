@@ -4,6 +4,7 @@ pub mod commit;
 pub mod hash;
 pub mod index;
 pub mod log;
+pub mod merge;
 pub mod objects;
 pub mod repo;
 pub mod stage;
