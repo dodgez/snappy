@@ -28,7 +28,7 @@ fn is_commit_parent(child: &str, parent: &str) -> Result<bool, io::Error> {
 pub fn merge(object: &str) -> Result<(), io::Error> {
     let snap_dir = Path::new(".snappy");
     let branches_dir = snap_dir.join("branches");
-    
+
     let mut commit = object.to_string();
     let branch_file = branches_dir.join(object);
     if branch_file.exists() {
