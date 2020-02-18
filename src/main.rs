@@ -1,9 +1,12 @@
 use clap::{App, AppSettings, Arg, SubCommand};
 use std::path::Path;
+use whoami::username;
 
 use snappy::{branch, checkout, commit, log, repo, stage};
 
 fn main() {
+    let name = username();
+
     let matches = App::new("Snappy")
         .version(env!("CARGO_PKG_VERSION"))
         .author(env!("CARGO_PKG_AUTHORS"))
@@ -33,7 +36,16 @@ fn main() {
                 .arg(
                     Arg::with_name("commit_message")
                         .help("A short description of the file changes")
+                        .short("m")
+                        .takes_value(true)
                         .required(true),
+                )
+                .arg(
+                    Arg::with_name("author_name")
+                        .help("The name of the author")
+                        .short("a")
+                        .takes_value(true)
+                        .default_value(&name),
                 ),
         )
         .subcommand(
@@ -62,7 +74,7 @@ fn main() {
     } else if let Some(matches) = matches.subcommand_matches("add") {
         stage::stage(&Path::new(matches.value_of("object_to_stage").unwrap()));
     } else if let Some(matches) = matches.subcommand_matches("commit") {
-        println!("{}", commit::commit(matches.value_of("commit_message").unwrap()));
+        println!("{}", commit::commit(matches.value_of("commit_message").unwrap(), matches.value_of("author_name").unwrap()));
     } else if let Some(matches) = matches.subcommand_matches("checkout") {
         checkout::checkout(matches.value_of("commit_hash").unwrap());
     } else if let Some(_matches) = matches.subcommand_matches("log") {

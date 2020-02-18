@@ -21,6 +21,7 @@ pub struct Tree {
 pub struct Commit {
     pub hash: String,
     pub message: String,
+    pub author: String,
     pub parent: String,
     pub tree: String,
 }
@@ -122,12 +123,13 @@ impl Tree {
 }
 
 impl Commit {
-    pub fn new(parent: String, message: String, tree: String) -> Commit {
-        let hash = hash::hash(&format!("commit\n{}\n{}\n{}", parent, message, tree));
+    pub fn new(parent: String, message: String, author: String, tree: String) -> Commit {
+        let hash = hash::hash(&format!("commit\n{}\n{}\n{}\n{}", parent, message, author, tree));
 
         Commit {
             parent,
             message,
+            author,
             tree,
             hash,
         }
@@ -148,11 +150,13 @@ impl Commit {
         let _identifier = lines.next().unwrap();
         let parent = lines.next().unwrap().to_string();
         let message = lines.next().unwrap().to_string();
+        let author = lines.next().unwrap().to_string();
         let tree = lines.next().unwrap().to_string();
 
         Commit {
             hash,
             message,
+            author,
             parent,
             tree,
         }
@@ -165,7 +169,7 @@ impl Commit {
     pub fn write_to_file(&self, path: &Path) {
         write(
             path,
-            format!("commit\n{}\n{}\n{}", self.parent, self.message, self.tree).as_bytes(),
+            format!("commit\n{}\n{}\n{}\n{}", self.parent, self.message, self.author, self.tree).as_bytes(),
         )
         .unwrap();
     }

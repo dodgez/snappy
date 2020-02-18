@@ -12,7 +12,7 @@ fn test_branch() {
     let head_file = snap_dir.join("HEAD");
     init(true);
 
-    commit("Basic");
+    commit("Basic", "Author");
 
     branch("test");
     assert_eq!(read_to_string(head_file).unwrap(), "test");
@@ -24,7 +24,7 @@ fn test_branch() {
     write(&new_file, &new_data.as_bytes()).unwrap();
 
     stage(&new_file);
-    let hash = commit("Add test-checkout-file");
+    let hash = commit("Add test-checkout-file", "Author");
 
     checkout("master");
     assert_eq!(new_dir.exists(), false);

@@ -17,11 +17,11 @@ fn test_checkout() {
     write(&new_file, &new_data.as_bytes()).unwrap();
 
     stage(&new_file);
-    let hash = commit("Add test-checkout-file");
+    let hash = commit("Add test-checkout-file", "Author");
 
     write(&new_file, "".as_bytes()).unwrap();
     stage(&new_file);
-    commit("Delete test-checkout-file data");
+    commit("Delete test-checkout-file data", "Author");
 
     checkout(&hash);
     let contents = read_to_string(new_file).unwrap();

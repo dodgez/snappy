@@ -144,6 +144,7 @@ dependencies = [
  "clap",
  "glob",
  "sha2",
+ "whoami",
 ]
 
 [[package]]
@@ -178,6 +179,12 @@ name = "vec_map"
 version = "0.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "05c78687fb1a80548ae3250346c3db86a80a7cdd77bda190189f2d0a0987c81a"
+
+[[package]]
+name = "whoami"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "622a663c45e12b7ae198748afb532d0c53d2daea11037312221e26198ca4e8e9"
 
 [[package]]
 name = "winapi"
