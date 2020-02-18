@@ -9,6 +9,12 @@ fn test_commit() {
     init(true);
 
     stage(Path::new("./tests/commit.rs"));
-    let hash = commit("Test message", "Author");
-    assert_eq!(hash, get_latest_commit());
+    let hash = match commit("Test message", "Author") {
+        Ok(commit_hash) => commit_hash,
+        Err(e) => panic!(e),
+    };
+    match get_latest_commit() {
+        Ok(latest_hash) => assert_eq!(hash, latest_hash),
+        Err(e) => panic!(e),
+    }
 }

@@ -17,11 +17,17 @@ fn test_checkout() {
     write(&new_file, &new_data.as_bytes()).unwrap();
 
     stage(&new_file);
-    let hash = commit("Add test-checkout-file", "Author");
+    let hash = match commit("Add test-checkout-file", "Author") {
+        Ok(hash) => hash,
+        Err(e) => panic!(e),
+    };
 
     write(&new_file, "".as_bytes()).unwrap();
     stage(&new_file);
-    commit("Delete test-checkout-file data", "Author");
+    match commit("Delete test-checkout-file data", "Author") {
+        Ok(_) => (),
+        Err(e) => panic!(e),
+    }
 
     match checkout(&hash) {
         Ok(_) => (),
@@ -30,5 +36,8 @@ fn test_checkout() {
     let contents = read_to_string(new_file).unwrap();
     remove_dir_all(new_dir).unwrap();
     assert_eq!(contents, new_data);
-    assert_eq!(hash, get_latest_commit());
+    match get_latest_commit() {
+        Ok(latest_hash) => assert_eq!(hash, latest_hash),
+        Err(e) => panic!(e),
+    }
 }

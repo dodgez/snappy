@@ -89,7 +89,7 @@ pub fn checkout(commit_hash: &str) -> Result<(), io::Error> {
 
     populate_working_directory(&tree_hash, Path::new(""))?;
 
-    update_head(commit_hash);
+    update_head(commit_hash)?;
 
     Ok(())
 }

@@ -12,9 +12,15 @@ fn test_branch() {
     let head_file = snap_dir.join("HEAD");
     init(true);
 
-    commit("Basic", "Author");
+    match commit("Basic", "Author") {
+        Ok(_) => (),
+        Err(e) => panic!(e),
+    }
 
-    branch("test");
+    match branch("test") {
+        Ok(_) => (),
+        Err(e) => panic!(e),
+    }
     assert_eq!(read_to_string(head_file).unwrap(), "test");
 
     let new_dir = Path::new("./test-checkout-folder/");
@@ -24,7 +30,10 @@ fn test_branch() {
     write(&new_file, &new_data.as_bytes()).unwrap();
 
     stage(&new_file);
-    let hash = commit("Add test-checkout-file", "Author");
+    let hash = match commit("Add test-checkout-file", "Author") {
+        Ok(latest_hash) => latest_hash,
+        Err(e) => panic!(e),
+    };
 
     match checkout("master") {
         Ok(_) => (),
@@ -43,5 +52,8 @@ fn test_branch() {
     let contents = read_to_string(new_file).unwrap();
     remove_dir_all(new_dir).unwrap();
     assert_eq!(contents, new_data);
-    assert_eq!(hash, get_latest_commit());
+    match get_latest_commit() {
+        Ok(latest_hash) => assert_eq!(hash, latest_hash),
+        Err(e) => panic!(e),
+    }
 }

@@ -74,15 +74,26 @@ fn main() {
     } else if let Some(matches) = matches.subcommand_matches("add") {
         stage::stage(&Path::new(matches.value_of("object_to_stage").unwrap()));
     } else if let Some(matches) = matches.subcommand_matches("commit") {
-        println!("{}", commit::commit(matches.value_of("commit_message").unwrap(), matches.value_of("author_name").unwrap()));
+        let message = matches.value_of("commit_message").unwrap();
+        let author = matches.value_of("author_name").unwrap();
+        match commit::commit(message, author) {
+            Ok(hash) => println!("{}", hash),
+            Err(e) => panic!(e),
+        }
     } else if let Some(matches) = matches.subcommand_matches("checkout") {
         match checkout::checkout(matches.value_of("commit_hash").unwrap()) {
             Ok(_) => (),
             Err(e) => panic!(e),
         }
     } else if let Some(_matches) = matches.subcommand_matches("log") {
-        log::log();
+        match log::log() {
+            Ok(_) => (),
+            Err(e) => panic!(e),
+        }
     } else if let Some(matches) = matches.subcommand_matches("branch") {
-        branch::branch(matches.value_of("branch_name").unwrap());
+        match branch::branch(matches.value_of("branch_name").unwrap()) {
+            Ok(_) => (),
+            Err(e) => panic!(e),
+        }
     }
 }
