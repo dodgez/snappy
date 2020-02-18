@@ -61,7 +61,7 @@ pub fn checkout(commit_hash: &str) -> Result<(), io::Error> {
         commit = read_to_string(branch_file)?;
     }
     let commit_file = snaps_dir.join(get_hash_path(&commit));
-    let commit = Commit::from_file(&commit_file);
+    let commit = Commit::from_file(&commit_file)?;
     let tree_hash = commit.tree;
 
     let tracked_contents = read_to_string(tracked_file)?;

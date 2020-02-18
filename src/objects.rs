@@ -1,4 +1,5 @@
 use std::fs::{read_to_string, write};
+use std::io;
 use std::path::{Path, PathBuf};
 
 use crate::hash;
@@ -33,13 +34,13 @@ impl File {
         File { contents, hash }
     }
 
-    pub fn _from_file(path: &Path) -> File {
+    pub fn _from_file(path: &Path) -> Result<File, io::Error> {
         if !path.exists() {
             panic!("fatal: object does not exist {}", path.display());
         }
 
-        let data = read_to_string(path).unwrap();
-        return File::from_string(&data);
+        let data = read_to_string(path)?;
+        return Ok(File::from_string(&data));
     }
 
     pub fn from_string(contents: &str) -> File {
@@ -52,8 +53,10 @@ impl File {
         return hash::get_hash_path(&self.hash);
     }
 
-    pub fn write_to_file(&self, path: &Path) {
-        write(path, format!("file\n{}", self.contents).as_bytes()).unwrap();
+    pub fn write_to_file(&self, path: &Path) -> Result<(), io::Error> {
+        write(path, format!("file\n{}", self.contents).as_bytes())?;
+
+        Ok(())
     }
 }
 
@@ -82,13 +85,13 @@ impl Tree {
         Tree { children, hash }
     }
 
-    pub fn _from_file(path: &Path) -> Tree {
+    pub fn _from_file(path: &Path) -> Result<Tree, io::Error> {
         if !path.exists() {
             panic!("fatal: object does not exist {}", path.display());
         }
 
-        let data = read_to_string(path).unwrap();
-        return Tree::from_string(&data);
+        let data = read_to_string(path)?;
+        return Ok(Tree::from_string(&data));
     }
 
     pub fn from_string(contents: &str) -> Tree {
@@ -108,7 +111,7 @@ impl Tree {
         return hash::get_hash_path(&self.hash);
     }
 
-    pub fn write_to_file(&self, path: &Path) {
+    pub fn write_to_file(&self, path: &Path) -> Result<(), io::Error> {
         let mut raw_children = Vec::<String>::new();
         for child in &self.children {
             raw_children.push(child.to_string());
@@ -117,8 +120,9 @@ impl Tree {
         write(
             path,
             format!("tree\n{}", raw_children.join("\n")).as_bytes(),
-        )
-        .unwrap();
+        )?;
+
+        Ok(())
     }
 }
 
@@ -135,13 +139,13 @@ impl Commit {
         }
     }
 
-    pub fn from_file(path: &Path) -> Commit {
+    pub fn from_file(path: &Path) -> Result<Commit, io::Error> {
         if !path.exists() {
             panic!("fatal: object does not exist {}", path.display());
         }
 
-        let data = read_to_string(path).unwrap();
-        return Commit::from_string(&data);
+        let data = read_to_string(path)?;
+        return Ok(Commit::from_string(&data));
     }
 
     pub fn from_string(contents: &str) -> Commit {
@@ -166,11 +170,12 @@ impl Commit {
         return hash::get_hash_path(&self.hash);
     }
 
-    pub fn write_to_file(&self, path: &Path) {
+    pub fn write_to_file(&self, path: &Path) -> Result<(), io::Error> {
         write(
             path,
             format!("commit\n{}\n{}\n{}\n{}", self.parent, self.message, self.author, self.tree).as_bytes(),
-        )
-        .unwrap();
+        )?;
+
+        Ok(())
     }
 }

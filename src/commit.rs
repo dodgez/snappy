@@ -54,7 +54,7 @@ fn recurse_dir_commit(path: &Path) -> Result<TreeEntry, io::Error> {
 
     let tree = Tree::new(children);
     create_hash_dir(&tree.hash, &snaps_dir)?;
-    tree.write_to_file(&snaps_dir.join(tree.get_hash_path()));
+    tree.write_to_file(&snaps_dir.join(tree.get_hash_path()))?;
 
     Ok(TreeEntry {
         name: path.file_name().unwrap().to_str().unwrap().to_owned(),
@@ -95,7 +95,7 @@ pub fn commit(message: &str, author: &str) -> Result<String, io::Error> {
     let tree = recurse_dir_commit(&temp_dir)?;
     let commit = Commit::new(get_latest_commit()?, message.to_string(), author.to_string(), tree.hash);
     create_hash_dir(&commit.hash, &snaps_dir)?;
-    commit.write_to_file(&snaps_dir.join(commit.get_hash_path()));
+    commit.write_to_file(&snaps_dir.join(commit.get_hash_path()))?;
 
     remove_dir_all(temp_dir)?;
     update_branch(&commit.hash)?;

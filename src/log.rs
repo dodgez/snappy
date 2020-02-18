@@ -15,7 +15,7 @@ pub fn log() -> Result<(), io::Error> {
     let mut commit_hash = get_latest_commit()?;
     while commit_hash != "0" {
         let hash_path = snaps_dir.join(hash::get_hash_path(&commit_hash));
-        let commit = Commit::from_file(&hash_path);
+        let commit = Commit::from_file(&hash_path)?;
         println!(
             "Commit: {}\nParent: {}\nMessage: {}\nAuthor: {}\nTree: {}\n",
             commit.hash, commit.parent, commit.message, commit.author, commit.tree
