@@ -26,7 +26,6 @@ fn populate_working_directory(hash: &str, partial_path: &Path) -> Result<(), io:
         write(partial_path, file.contents)?;
     } else if contents.starts_with("tree") {
         if partial_path != Path::new("") {
-            println!("Creating directory {}", partial_path.display());
             create_dir_all(partial_path)?;
         }
         let tree = Tree::from_string(&contents);
