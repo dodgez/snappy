@@ -78,12 +78,12 @@ fn main() -> Result<(), io::Error> {
         )
         .subcommand(
             SubCommand::with_name("merge")
-            .about("Merge another branch into current")
-            .arg(
-                Arg::with_name("object_name")
-                .help("The name of the object to merge")
-                .required(true),
-            ),
+                .about("Merge another branch into current")
+                .arg(
+                    Arg::with_name("object_name")
+                        .help("The name of the object to merge")
+                        .required(true),
+                ),
         )
         .subcommand(SubCommand::with_name("log").about("Output the linear history of HEAD"))
         .get_matches();
