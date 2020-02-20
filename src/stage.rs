@@ -1,9 +1,9 @@
 use glob::Pattern;
-use std::{fs, io};
 use std::path::Path;
+use std::{fs, io};
 
-use crate::{hash, index, repo};
 use crate::objects::File;
+use crate::{hash, index, repo};
 
 fn stage_file(path: &Path) -> Result<(), io::Error> {
     let repo = repo::import()?;

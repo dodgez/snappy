@@ -1,8 +1,8 @@
-use std::{fs, io};
 use std::path::Path;
+use std::{fs, io};
 
-use crate::{branch, hash, index, repo};
 use crate::objects::{Commit, File, Tree};
+use crate::{branch, hash, index, repo};
 
 fn populate_working_directory(hash: &str, partial_path: &Path) -> Result<(), io::Error> {
     let repo = repo::import()?;

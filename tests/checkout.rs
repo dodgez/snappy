@@ -1,6 +1,6 @@
 use snappy::{branch, checkout, commit, repo, stage};
-use std::{fs, io};
 use std::path::Path;
+use std::{fs, io};
 
 #[test]
 fn test_checkout() -> Result<(), io::Error> {

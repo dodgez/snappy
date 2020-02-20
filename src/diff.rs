@@ -4,8 +4,8 @@ use colored::*;
 use file_diff::Result;
 use std::{fs, io};
 
-use crate::{hash, repo};
 use crate::objects::{File, TreeEntry};
+use crate::{hash, repo};
 
 fn print_diff(last: &str, current: &str) {
     for diff in file_diff::lines(last, current) {

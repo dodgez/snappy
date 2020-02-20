@@ -1,7 +1,7 @@
 use std::{fs, io};
 
-use crate::{branch, hash, repo};
 use crate::objects::Commit;
+use crate::{branch, hash, repo};
 
 fn is_commit_parent(child: &str, parent: &str) -> Result<bool, io::Error> {
     let repo = repo::import()?;

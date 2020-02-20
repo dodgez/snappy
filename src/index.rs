@@ -1,5 +1,5 @@
-use std::{fs, io};
 use std::path::Path;
+use std::{fs, io};
 
 use crate::objects::TreeEntry;
 use crate::repo;

@@ -1,8 +1,8 @@
-use std::{fs, io};
 use std::path::Path;
+use std::{fs, io};
 
-use crate::{branch, hash, repo};
 use crate::objects::{Commit, Tree, TreeEntry};
+use crate::{branch, hash, repo};
 
 fn track_object(path: &Path) -> Result<(), io::Error> {
     let repo = repo::import()?;

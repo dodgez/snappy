@@ -1,8 +1,8 @@
 use colored::*;
 use std::io;
 
-use crate::{branch, hash, repo};
 use crate::objects::Commit;
+use crate::{branch, hash, repo};
 
 pub fn log() -> Result<(), io::Error> {
     let repo = repo::import()?;
