@@ -34,7 +34,7 @@ impl File {
         File { contents, hash }
     }
 
-    pub fn _from_file(path: &Path) -> Result<File, io::Error> {
+    pub fn from_file(path: &Path) -> Result<File, io::Error> {
         if !path.exists() {
             panic!("fatal: object does not exist {}", path.display());
         }

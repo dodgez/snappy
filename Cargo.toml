@@ -9,6 +9,7 @@ edition = "2018"
 [dependencies]
 clap = "2.33.0"
 colored = "1.9"
+diff = "0.1.12"
 glob = "0.3.0"
 sha2 = "0.8.1"
 whoami = "0.7.0"

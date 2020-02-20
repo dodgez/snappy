@@ -3,7 +3,7 @@ use std::io;
 use std::path::Path;
 use whoami::username;
 
-use snappy::{branch, checkout, commit, log, merge, repo, stage};
+use snappy::{branch, checkout, commit, diff, log, merge, repo, stage};
 
 fn main() -> Result<(), io::Error> {
     let name = username();
@@ -67,16 +67,25 @@ fn main() -> Result<(), io::Error> {
                         .required(true),
                 ),
         )
-        .subcommand(SubCommand::with_name("log").about("Output the linear history of HEAD"))
         .subcommand(
-            SubCommand::with_name("merge")
-                .about("Merge another branch into current")
+            SubCommand::with_name("diff")
+                .about("Get differences between the working copy and history copy of a file")
                 .arg(
-                    Arg::with_name("object_name")
-                        .help("The name of the object to merge")
+                    Arg::with_name("file_to_diff")
+                        .help("The file to diff")
                         .required(true),
                 ),
         )
+        .subcommand(
+            SubCommand::with_name("merge")
+            .about("Merge another branch into current")
+            .arg(
+                Arg::with_name("object_name")
+                .help("The name of the object to merge")
+                .required(true),
+            ),
+        )
+        .subcommand(SubCommand::with_name("log").about("Output the linear history of HEAD"))
         .get_matches();
 
     if let Some(matches) = matches.subcommand_matches("init") {
@@ -96,6 +105,8 @@ fn main() -> Result<(), io::Error> {
         branch::branch(matches.value_of("branch_name").unwrap())?;
     } else if let Some(matches) = matches.subcommand_matches("merge") {
         merge::merge(matches.value_of("object_name").unwrap())?;
+    } else if let Some(matches) = matches.subcommand_matches("diff") {
+        diff::diff(matches.value_of("file_to_diff").unwrap())?;
     }
 
     Ok(())
