@@ -2,6 +2,7 @@ extern crate diff as file_diff;
 
 use colored::*;
 use file_diff::Result;
+use std::path::Path;
 use std::{fs, io};
 
 use crate::objects::{File, TreeEntry};
@@ -18,9 +19,14 @@ fn print_diff(last: &str, current: &str) {
 }
 
 pub fn diff(file: &str) -> std::result::Result<(), io::Error> {
+    let path = Path::new(file);
+    if !path.exists() {
+        panic!("fatal: object does not exist {}", path.display());
+    }
+
     let repo = repo::import()?;
 
-    let current_contents = fs::read_to_string(file)?;
+    let current_contents = fs::read_to_string(&path)?;
 
     let contents = fs::read_to_string(repo.index_file)?;
     let mut files = contents.lines();
