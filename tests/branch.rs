@@ -9,14 +9,12 @@ use std::path::Path;
 
 #[test]
 fn test_branch() -> Result<(), io::Error> {
-    let snap_dir = Path::new(".snappy");
-    let head_file = snap_dir.join("HEAD");
-    init(true)?;
+    let repo = init(true)?;
 
     commit("Basic", "Author")?;
 
     branch("test")?;
-    assert_eq!(read_to_string(head_file)?, "test");
+    assert_eq!(read_to_string(repo.head_file)?, "test");
 
     let new_dir = Path::new("./test-checkout-folder/");
     let new_file = new_dir.join("test-checkout-file");

@@ -1,19 +1,16 @@
-use std::fs::{create_dir_all, read_dir, read_to_string, remove_dir_all, write, File};
+use std::fs::{create_dir_all, read_dir, read_to_string, remove_dir_all, write};
 use std::io;
 use std::path::Path;
 
 use crate::branch::{get_latest_commit, update_branch};
 use crate::hash::create_hash_dir;
 use crate::objects::{Commit, Tree, TreeEntry};
+use crate::repo::import;
 
 fn track_object(path: &Path) -> Result<(), io::Error> {
-    let snap_dir = Path::new(".snappy");
-    let tracked_file = snap_dir.join("tracked");
-    if !tracked_file.exists() {
-        File::create(&tracked_file)?;
-    }
+    let repo = import()?;
 
-    let contents = read_to_string(&tracked_file)?;
+    let contents = read_to_string(&repo.tracked_file)?;
     let mut lines = contents.lines();
     while let Some(line) = lines.next() {
         if path == Path::new(line) {
@@ -21,14 +18,16 @@ fn track_object(path: &Path) -> Result<(), io::Error> {
         }
     }
 
-    write(tracked_file, contents + &format!("{}\n", path.display()))?;
+    write(
+        repo.tracked_file,
+        contents + &format!("{}\n", path.display()),
+    )?;
 
     Ok(())
 }
 
 fn recurse_dir_commit(path: &Path) -> Result<TreeEntry, io::Error> {
-    let snap_dir = Path::new(".snappy");
-    let snaps_dir = snap_dir.join("snaps");
+    let repo = import()?;
 
     let mut contents = read_dir(path)?;
     let mut children = Vec::<TreeEntry>::new();
@@ -53,8 +52,8 @@ fn recurse_dir_commit(path: &Path) -> Result<TreeEntry, io::Error> {
     }
 
     let tree = Tree::new(children);
-    create_hash_dir(&tree.hash, &snaps_dir)?;
-    tree.write_to_file(&snaps_dir.join(tree.get_hash_path()))?;
+    create_hash_dir(&tree.hash, &repo.snaps_dir)?;
+    tree.write_to_file(&repo.snaps_dir.join(tree.get_hash_path()))?;
 
     Ok(TreeEntry {
         name: path.file_name().unwrap().to_str().unwrap().to_owned(),
@@ -63,17 +62,12 @@ fn recurse_dir_commit(path: &Path) -> Result<TreeEntry, io::Error> {
 }
 
 pub fn commit(message: &str, author: &str) -> Result<String, io::Error> {
-    let snap_dir = Path::new(".snappy");
-    let snaps_dir = snap_dir.join("snaps");
-    let temp_dir = snap_dir.join("commit-temp");
-    let index_file = snap_dir.join("index");
-    if !snap_dir.exists() {
-        panic!("fatal: not a snappy repository");
-    }
+    let repo = import()?;
+    let temp_dir = repo.snap_dir.join("commit-temp");
 
     create_dir_all(&temp_dir)?;
 
-    let contents = read_to_string(&index_file)?;
+    let contents = read_to_string(&repo.index_file)?;
     let mut files = contents.lines();
 
     while let Some(entry) = files.next() {
@@ -99,8 +93,8 @@ pub fn commit(message: &str, author: &str) -> Result<String, io::Error> {
         author.to_string(),
         tree.hash,
     );
-    create_hash_dir(&commit.hash, &snaps_dir)?;
-    commit.write_to_file(&snaps_dir.join(commit.get_hash_path()))?;
+    create_hash_dir(&commit.hash, &repo.snaps_dir)?;
+    commit.write_to_file(&repo.snaps_dir.join(commit.get_hash_path()))?;
 
     remove_dir_all(temp_dir)?;
     update_branch(&commit.hash)?;

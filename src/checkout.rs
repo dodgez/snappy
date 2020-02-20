@@ -6,15 +6,12 @@ use crate::branch::update_head;
 use crate::hash::get_hash_path;
 use crate::index::update_index;
 use crate::objects::{Commit, File, Tree};
+use crate::repo::import;
 
 fn populate_working_directory(hash: &str, partial_path: &Path) -> Result<(), io::Error> {
-    let snap_dir = Path::new(".snappy");
-    let snaps_dir = snap_dir.join("snaps");
-    if !snap_dir.exists() {
-        panic!("fatal: not a snappy repository");
-    }
+    let repo = import()?;
 
-    let hash_file = snaps_dir.join(get_hash_path(&hash));
+    let hash_file = repo.snaps_dir.join(get_hash_path(&hash));
     if !hash_file.exists() {
         panic!("fatal: object {} does not exist", &hash);
     }
@@ -41,29 +38,22 @@ fn populate_working_directory(hash: &str, partial_path: &Path) -> Result<(), io:
 }
 
 pub fn checkout(commit_hash: &str) -> Result<(), io::Error> {
-    let snap_dir = Path::new(".snappy");
-    let snaps_dir = snap_dir.join("snaps");
-    let branches_dir = snap_dir.join("branches");
-    let index_file = snap_dir.join("index");
-    let tracked_file = snap_dir.join("tracked");
-    if !snap_dir.exists() {
-        panic!("fatal: not a snappy repository");
-    }
+    let repo = import()?;
 
-    if index_file.exists() {
-        remove_file(index_file)?;
+    if repo.index_file.exists() {
+        remove_file(repo.index_file)?;
     }
 
     let mut commit = commit_hash.to_string();
-    let branch_file = branches_dir.join(commit_hash);
+    let branch_file = repo.branches_dir.join(commit_hash);
     if branch_file.exists() {
         commit = read_to_string(branch_file)?;
     }
-    let commit_file = snaps_dir.join(get_hash_path(&commit));
+    let commit_file = repo.snaps_dir.join(get_hash_path(&commit));
     let commit = Commit::from_file(&commit_file)?;
     let tree_hash = commit.tree;
 
-    let tracked_contents = read_to_string(tracked_file)?;
+    let tracked_contents = read_to_string(repo.tracked_file)?;
     let mut tracked_objects = tracked_contents.lines();
     while let Some(object) = tracked_objects.next() {
         let path = Path::new(object);

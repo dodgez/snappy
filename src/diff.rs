@@ -4,10 +4,10 @@ use colored::*;
 use file_diff::{lines, Result};
 use std::fs::read_to_string;
 use std::io;
-use std::path::Path;
 
 use crate::hash::get_hash_path;
 use crate::objects::{File, TreeEntry};
+use crate::repo::import;
 
 fn print_diff(last: &str, current: &str) {
     for diff in lines(last, current) {
@@ -20,28 +20,18 @@ fn print_diff(last: &str, current: &str) {
 }
 
 pub fn diff(file: &str) -> std::result::Result<(), io::Error> {
-    let snap_dir = Path::new(".snappy");
-    let snaps_dir = snap_dir.join("snaps");
-    if !snap_dir.exists() {
-        panic!("fatal: not a snappy repository");
-    }
+    let repo = import()?;
 
     let current_contents = read_to_string(file)?;
 
-    let index_file = snap_dir.join("index");
-    if !index_file.exists() {
-        print_diff("", &current_contents);
-        return Ok(());
-    }
-
-    let contents = read_to_string(index_file)?;
+    let contents = read_to_string(repo.index_file)?;
     let mut files = contents.lines();
 
     while let Some(entry) = files.next() {
         if entry.starts_with(file) {
             let file_info = TreeEntry::from_string(entry);
             let file_path = get_hash_path(&file_info.hash);
-            let file_contents = File::from_file(&snaps_dir.join(file_path))?;
+            let file_contents = File::from_file(&repo.snaps_dir.join(file_path))?;
 
             print_diff(&file_contents.contents, &current_contents);
 

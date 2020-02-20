@@ -6,20 +6,17 @@ use std::path::Path;
 use crate::hash::create_hash_dir;
 use crate::index::update_index;
 use crate::objects::File;
+use crate::repo::import;
 
 fn stage_file(path: &Path) -> Result<(), io::Error> {
-    let snap_dir = Path::new(".snappy");
-    let snaps_dir = snap_dir.join("snaps");
-    if !snap_dir.exists() {
-        panic!("fatal: not a snappy repository");
-    }
+    let repo = import()?;
     if !path.is_relative() {
         panic!("fatal: only relative paths are supported");
     }
 
     let file = File::new(read_to_string(path)?);
-    create_hash_dir(&file.hash, &snaps_dir)?;
-    file.write_to_file(&snaps_dir.join(file.get_hash_path()))?;
+    create_hash_dir(&file.hash, &repo.snaps_dir)?;
+    file.write_to_file(&repo.snaps_dir.join(file.get_hash_path()))?;
 
     update_index(path, &file.hash)?;
 
