@@ -1,29 +1,25 @@
-use std::fs::{create_dir_all, read_to_string, remove_dir, remove_file, write};
-use std::io;
+use std::{fs, io};
 use std::path::Path;
 
-use crate::branch::update_head;
-use crate::hash::get_hash_path;
-use crate::index::update_index;
+use crate::{branch, hash, index, repo};
 use crate::objects::{Commit, File, Tree};
-use crate::repo::import;
 
 fn populate_working_directory(hash: &str, partial_path: &Path) -> Result<(), io::Error> {
-    let repo = import()?;
+    let repo = repo::import()?;
 
-    let hash_file = repo.snaps_dir.join(get_hash_path(&hash));
+    let hash_file = repo.snaps_dir.join(hash::get_hash_path(&hash));
     if !hash_file.exists() {
         panic!("fatal: object {} does not exist", &hash);
     }
 
-    let contents = read_to_string(hash_file)?;
+    let contents = fs::read_to_string(hash_file)?;
     if contents.starts_with("file") {
         let file = File::from_string(&contents);
-        update_index(&partial_path, &hash)?;
-        write(partial_path, file.contents)?;
+        index::update_index(&partial_path, &hash)?;
+        fs::write(partial_path, file.contents)?;
     } else if contents.starts_with("tree") {
         if partial_path != Path::new("") {
-            create_dir_all(partial_path)?;
+            fs::create_dir_all(partial_path)?;
         }
         let tree = Tree::from_string(&contents);
         let partial_path = partial_path.to_path_buf();
@@ -38,36 +34,36 @@ fn populate_working_directory(hash: &str, partial_path: &Path) -> Result<(), io:
 }
 
 pub fn checkout(commit_hash: &str) -> Result<(), io::Error> {
-    let repo = import()?;
+    let repo = repo::import()?;
 
     if repo.index_file.exists() {
-        remove_file(repo.index_file)?;
+        fs::remove_file(repo.index_file)?;
     }
 
     let mut commit = commit_hash.to_string();
     let branch_file = repo.branches_dir.join(commit_hash);
     if branch_file.exists() {
-        commit = read_to_string(branch_file)?;
+        commit = fs::read_to_string(branch_file)?;
     }
-    let commit_file = repo.snaps_dir.join(get_hash_path(&commit));
+    let commit_file = repo.snaps_dir.join(hash::get_hash_path(&commit));
     let commit = Commit::from_file(&commit_file)?;
     let tree_hash = commit.tree;
 
-    let tracked_contents = read_to_string(repo.tracked_file)?;
+    let tracked_contents = fs::read_to_string(repo.tracked_file)?;
     let mut tracked_objects = tracked_contents.lines();
     while let Some(object) = tracked_objects.next() {
         let path = Path::new(object);
         if path.exists() {
             if path.is_dir() {
-                match remove_dir(path) {
+                match fs::remove_dir(path) {
                     Ok(_) => (),
                     Err(_) => (),
                 }
             } else if path.is_file() {
-                remove_file(path)?;
+                fs::remove_file(path)?;
 
                 if let Some(parent) = path.parent() {
-                    match remove_dir(parent) {
+                    match fs::remove_dir(parent) {
                         Ok(_) => (),
                         Err(_) => (),
                     }
@@ -78,7 +74,7 @@ pub fn checkout(commit_hash: &str) -> Result<(), io::Error> {
 
     populate_working_directory(&tree_hash, Path::new(""))?;
 
-    update_head(commit_hash)?;
+    branch::update_head(commit_hash)?;
 
     Ok(())
 }

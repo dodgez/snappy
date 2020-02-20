@@ -1,4 +1,4 @@
-use std::fs::{create_dir_all, remove_dir_all, File};
+use std::fs::{self, File};
 use std::io;
 use std::io::prelude::*;
 use std::path::{Path, PathBuf};
@@ -34,15 +34,15 @@ pub fn init(force: bool) -> Result<Repo, io::Error> {
     let repo = Repo::new();
     if repo.snap_dir.exists() {
         if force {
-            remove_dir_all(&repo.snap_dir)?;
+            fs::remove_dir_all(&repo.snap_dir)?;
         } else {
             panic!("fatal: found an existing snappy repository");
         }
     }
 
-    create_dir_all(&repo.snap_dir)?;
-    create_dir_all(&repo.snaps_dir)?;
-    create_dir_all(&repo.branches_dir)?;
+    fs::create_dir_all(&repo.snap_dir)?;
+    fs::create_dir_all(&repo.snaps_dir)?;
+    fs::create_dir_all(&repo.branches_dir)?;
 
     File::create(&repo.head_file)?.write("master".as_bytes())?;
     File::create(&repo.index_file)?;
@@ -59,10 +59,10 @@ pub fn import() -> Result<Repo, io::Error> {
     }
 
     if !repo.snaps_dir.exists() {
-        create_dir_all(&repo.snaps_dir)?;
+        fs::create_dir_all(&repo.snaps_dir)?;
     }
     if !repo.branches_dir.exists() {
-        create_dir_all(&repo.branches_dir)?;
+        fs::create_dir_all(&repo.branches_dir)?;
     }
     if !repo.head_file.exists() {
         File::create(&repo.head_file)?.write("master".as_bytes())?;

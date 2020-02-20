@@ -1,5 +1,4 @@
-use std::fs::{read_to_string, write};
-use std::io;
+use std::{fs, io};
 use std::path::{Path, PathBuf};
 
 use crate::hash;
@@ -39,7 +38,7 @@ impl File {
             panic!("fatal: object does not exist {}", path.display());
         }
 
-        let data = read_to_string(path)?;
+        let data = fs::read_to_string(path)?;
         return Ok(File::from_string(&data));
     }
 
@@ -54,7 +53,7 @@ impl File {
     }
 
     pub fn write_to_file(&self, path: &Path) -> Result<(), io::Error> {
-        write(path, format!("file\n{}", self.contents).as_bytes())?;
+        fs::write(path, format!("file\n{}", self.contents).as_bytes())?;
 
         Ok(())
     }
@@ -90,7 +89,7 @@ impl Tree {
             panic!("fatal: object does not exist {}", path.display());
         }
 
-        let data = read_to_string(path)?;
+        let data = fs::read_to_string(path)?;
         return Ok(Tree::from_string(&data));
     }
 
@@ -117,7 +116,7 @@ impl Tree {
             raw_children.push(child.to_string());
         }
 
-        write(
+        fs::write(
             path,
             format!("tree\n{}", raw_children.join("\n")).as_bytes(),
         )?;
@@ -147,7 +146,7 @@ impl Commit {
             panic!("fatal: object does not exist {}", path.display());
         }
 
-        let data = read_to_string(path)?;
+        let data = fs::read_to_string(path)?;
         return Ok(Commit::from_string(&data));
     }
 
@@ -174,7 +173,7 @@ impl Commit {
     }
 
     pub fn write_to_file(&self, path: &Path) -> Result<(), io::Error> {
-        write(
+        fs::write(
             path,
             format!(
                 "commit\n{}\n{}\n{}\n{}",

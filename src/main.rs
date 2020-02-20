@@ -1,12 +1,12 @@
 use clap::{App, AppSettings, Arg, SubCommand};
 use std::io;
 use std::path::Path;
-use whoami::username;
+use whoami;
 
 use snappy::{branch, checkout, commit, diff, log, merge, repo, stage};
 
 fn main() -> Result<(), io::Error> {
-    let name = username();
+    let name = whoami::username();
 
     let matches = App::new("Snappy")
         .version(env!("CARGO_PKG_VERSION"))

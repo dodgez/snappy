@@ -1,42 +1,37 @@
-use snappy::branch::{branch, get_latest_commit};
-use snappy::checkout::checkout;
-use snappy::commit::commit;
-use snappy::repo::init;
-use snappy::stage::stage;
-use std::fs::{create_dir_all, read_to_string, remove_dir_all, write};
-use std::io;
+use snappy::{branch, checkout, commit, repo, stage};
+use std::{fs, io};
 use std::path::Path;
 
 #[test]
 fn test_branch() -> Result<(), io::Error> {
-    let repo = init(true)?;
+    let repo = repo::init(true)?;
 
-    commit("Basic", "Author")?;
+    commit::commit("Basic", "Author")?;
 
-    branch("test")?;
-    assert_eq!(read_to_string(repo.head_file)?, "test");
+    branch::branch("test")?;
+    assert_eq!(fs::read_to_string(repo.head_file)?, "test");
 
     let new_dir = Path::new("./test-checkout-folder/");
     let new_file = new_dir.join("test-checkout-file");
     let new_data = "Test data";
-    create_dir_all(&new_dir)?;
-    write(&new_file, &new_data.as_bytes())?;
+    fs::create_dir_all(&new_dir)?;
+    fs::write(&new_file, &new_data.as_bytes())?;
 
-    stage(&new_file)?;
-    let hash = commit("Add test-checkout-file", "Author")?;
+    stage::stage(&new_file)?;
+    let hash = commit::commit("Add test-checkout-file", "Author")?;
 
-    checkout("master")?;
+    checkout::checkout("master")?;
     assert_eq!(new_dir.exists(), false);
     assert_eq!(new_file.exists(), false);
 
-    checkout("test")?;
+    checkout::checkout("test")?;
     assert_eq!(new_dir.exists(), true);
     assert_eq!(new_file.exists(), true);
 
-    let contents = read_to_string(new_file)?;
-    remove_dir_all(new_dir)?;
+    let contents = fs::read_to_string(new_file)?;
+    fs::remove_dir_all(new_dir)?;
     assert_eq!(contents, new_data);
-    assert_eq!(hash, get_latest_commit()?);
+    assert_eq!(hash, branch::get_latest_commit()?);
 
     Ok(())
 }

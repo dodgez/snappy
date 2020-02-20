@@ -1,9 +1,9 @@
-use snappy::repo::init;
+use snappy::repo;
 use std::io;
 
 #[test]
 fn test_repo_init() -> Result<(), io::Error> {
-    init(true)?;
+    repo::init(true)?;
 
     Ok(())
 }

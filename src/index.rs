@@ -1,9 +1,8 @@
-use std::fs::{read_to_string, write};
-use std::io;
+use std::{fs, io};
 use std::path::Path;
 
 use crate::objects::TreeEntry;
-use crate::repo::import;
+use crate::repo;
 
 pub fn update_index(path: &Path, hash: &str) -> Result<(), io::Error> {
     let path = if path.starts_with(".") {
@@ -11,9 +10,9 @@ pub fn update_index(path: &Path, hash: &str) -> Result<(), io::Error> {
     } else {
         path
     };
-    let repo = import()?;
+    let repo = repo::import()?;
 
-    let contents = read_to_string(&repo.index_file)?;
+    let contents = fs::read_to_string(&repo.index_file)?;
     let lines = contents.lines();
     let mut lines = lines.collect::<Vec<&str>>();
     let updated_line = &TreeEntry {
@@ -34,7 +33,7 @@ pub fn update_index(path: &Path, hash: &str) -> Result<(), io::Error> {
         lines.push(updated_line);
     }
 
-    write(repo.index_file, lines.join("\n").as_bytes())?;
+    fs::write(repo.index_file, lines.join("\n").as_bytes())?;
 
     Ok(())
 }
