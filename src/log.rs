@@ -1,3 +1,4 @@
+use colored::*;
 use std::io;
 use std::path::Path;
 
@@ -18,7 +19,7 @@ pub fn log() -> Result<(), io::Error> {
         let commit = Commit::from_file(&hash_path)?;
         println!(
             "Commit: {}\nParent: {}\nMessage: {}\nAuthor: {}\nTree: {}\n",
-            commit.hash, commit.parent, commit.message, commit.author, commit.tree
+            commit.hash.green(), commit.parent, commit.message, commit.author, commit.tree
         );
 
         commit_hash = commit.parent;
