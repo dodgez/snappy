@@ -4,7 +4,7 @@ use std::{fs, io};
 
 #[test]
 fn test_checkout() -> Result<(), io::Error> {
-    repo::init(true)?;
+    repo::init(false, true)?;
 
     let new_dir = Path::new("./test-checkout-folder/");
     let new_file = new_dir.join("test-checkout-file");

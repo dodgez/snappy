@@ -14,8 +14,7 @@ pub struct Repo {
 }
 
 impl Repo {
-    fn new() -> Repo {
-        let snap_dir = Path::new(".snappy");
+    fn new(snap_dir: &Path) -> Repo {
         let branches_dir = &snap_dir.join("branches");
 
         Repo {
@@ -30,10 +29,14 @@ impl Repo {
     }
 }
 
-pub fn init(force: bool) -> Result<Repo, io::Error> {
-    let repo = Repo::new();
+pub fn init(bare: bool, force: bool) -> Result<Repo, io::Error> {
+    let repo = if bare {
+        Repo::new(&Path::new("."))
+    } else {
+        Repo::new(&Path::new(".snappy"))
+    };
     if repo.snap_dir.exists() {
-        if force {
+        if force && !bare {
             fs::remove_dir_all(&repo.snap_dir)?;
         } else {
             panic!("fatal: found an existing snappy repository");
@@ -52,12 +55,34 @@ pub fn init(force: bool) -> Result<Repo, io::Error> {
     Ok(repo)
 }
 
+fn is_repo() -> bool {
+    if Path::new(".snappy").exists() {
+        return true;
+    }
+
+    let repo = Repo::new(&Path::new("."));
+    if !repo.snaps_dir.exists() {
+        return false;
+    }
+
+    return true;
+}
+
+pub fn is_bare() -> bool {
+    return !Path::new(".snappy").exists();
+}
+
 pub fn import() -> Result<Repo, io::Error> {
-    let repo = Repo::new();
-    if !repo.snap_dir.exists() {
+    if !is_repo() {
         panic!("fatal: not a snappy repository");
     }
 
+    let mut snap_dir = Path::new(".snappy");
+    if !snap_dir.exists() {
+        snap_dir = Path::new(".");
+    }
+
+    let repo = Repo::new(&snap_dir);
     if !repo.snaps_dir.exists() {
         fs::create_dir_all(&repo.snaps_dir)?;
     }

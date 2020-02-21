@@ -17,8 +17,12 @@ fn main() -> Result<(), io::Error> {
             SubCommand::with_name("init")
                 .about("Creates an empty snappy repository")
                 .arg(
+                    Arg::with_name("bare")
+                        .help("Creates a bare repository"),
+                )
+                .arg(
                     Arg::with_name("force")
-                        .help("Overwrites an existing repository")
+                        .help("Overwrites an existing (non-bare) repository")
                         .short("f"),
                 ),
         )
@@ -89,7 +93,7 @@ fn main() -> Result<(), io::Error> {
         .get_matches();
 
     if let Some(matches) = matches.subcommand_matches("init") {
-        repo::init(matches.is_present("force"))?;
+        repo::init(matches.is_present("bare"), matches.is_present("force"))?;
     } else if let Some(matches) = matches.subcommand_matches("add") {
         let object = matches.value_of("object_to_stage").unwrap();
         stage::stage(&Path::new(object))?;

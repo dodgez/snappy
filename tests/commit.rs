@@ -4,7 +4,7 @@ use std::path::Path;
 
 #[test]
 fn test_commit() -> Result<(), io::Error> {
-    repo::init(true)?;
+    repo::init(false, true)?;
 
     stage::stage(Path::new("./tests/commit.rs"))?;
     let hash = commit::commit("Test message", "Author")?;

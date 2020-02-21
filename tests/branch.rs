@@ -4,7 +4,7 @@ use std::{fs, io};
 
 #[test]
 fn test_branch() -> Result<(), io::Error> {
-    let repo = repo::init(true)?;
+    let repo = repo::init(false, true)?;
 
     commit::commit("Basic", "Author")?;
 

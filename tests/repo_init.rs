@@ -3,7 +3,7 @@ use std::io;
 
 #[test]
 fn test_repo_init() -> Result<(), io::Error> {
-    repo::init(true)?;
+    repo::init(false, true)?;
 
     Ok(())
 }
