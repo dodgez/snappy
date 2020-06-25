@@ -39,7 +39,7 @@ impl File {
         }
 
         let data = fs::read_to_string(path)?;
-        return Ok(File::from_string(&data));
+        Ok(File::from_string(&data))
     }
 
     pub fn from_string(contents: &str) -> File {
@@ -49,7 +49,7 @@ impl File {
     }
 
     pub fn get_hash_path(&self) -> PathBuf {
-        return hash::get_hash_path(&self.hash);
+        hash::get_hash_path(&self.hash)
     }
 
     pub fn write_to_file(&self, path: &Path) -> Result<(), io::Error> {
@@ -90,7 +90,7 @@ impl Tree {
         }
 
         let data = fs::read_to_string(path)?;
-        return Ok(Tree::from_string(&data));
+        Ok(Tree::from_string(&data))
     }
 
     pub fn from_string(contents: &str) -> Tree {
@@ -99,7 +99,7 @@ impl Tree {
         // Pass over identifier
         lines.next();
         let mut children = Vec::<TreeEntry>::new();
-        while let Some(line) = lines.next() {
+        for line in lines {
             children.push(TreeEntry::from_string(line));
         }
 
@@ -107,7 +107,7 @@ impl Tree {
     }
 
     pub fn get_hash_path(&self) -> PathBuf {
-        return hash::get_hash_path(&self.hash);
+        hash::get_hash_path(&self.hash)
     }
 
     pub fn write_to_file(&self, path: &Path) -> Result<(), io::Error> {
@@ -147,7 +147,7 @@ impl Commit {
         }
 
         let data = fs::read_to_string(path)?;
-        return Ok(Commit::from_string(&data));
+        Ok(Commit::from_string(&data))
     }
 
     pub fn from_string(contents: &str) -> Commit {
@@ -169,7 +169,7 @@ impl Commit {
     }
 
     pub fn get_hash_path(&self) -> PathBuf {
-        return hash::get_hash_path(&self.hash);
+        hash::get_hash_path(&self.hash)
     }
 
     pub fn write_to_file(&self, path: &Path) -> Result<(), io::Error> {

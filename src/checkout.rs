@@ -50,23 +50,17 @@ pub fn checkout(commit_hash: &str) -> Result<(), io::Error> {
     let tree_hash = commit.tree;
 
     let tracked_contents = fs::read_to_string(repo.tracked_file)?;
-    let mut tracked_objects = tracked_contents.lines();
-    while let Some(object) = tracked_objects.next() {
+    let tracked_objects = tracked_contents.lines();
+    for object in tracked_objects {
         let path = Path::new(object);
         if path.exists() {
             if path.is_dir() {
-                match fs::remove_dir(path) {
-                    Ok(_) => (),
-                    Err(_) => (),
-                }
+                if fs::remove_dir(path).is_ok() {}
             } else if path.is_file() {
                 fs::remove_file(path)?;
 
                 if let Some(parent) = path.parent() {
-                    match fs::remove_dir(parent) {
-                        Ok(_) => (),
-                        Err(_) => (),
-                    }
+                    if fs::remove_dir(parent).is_ok() {}
                 }
             }
         }

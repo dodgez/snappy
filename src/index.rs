@@ -14,7 +14,8 @@ pub fn update_index(path: &Path, hash: &str) -> Result<(), io::Error> {
 
     let contents = fs::read_to_string(&repo.index_file)?;
     let lines = contents.lines();
-    let mut lines = lines.collect::<Vec<&str>>();
+    let lines = lines.collect::<Vec<&str>>();
+    let mut new_lines = Vec::<&str>::new();
     let updated_line = &TreeEntry {
         hash: hash.to_string(),
         name: path.display().to_string(),
@@ -22,18 +23,20 @@ pub fn update_index(path: &Path, hash: &str) -> Result<(), io::Error> {
     .to_string();
     let mut found_line = false;
 
-    for i in 0..lines.len() {
-        if lines[i].starts_with(&path.display().to_string()) {
-            lines[i] = updated_line;
+    for line in lines {
+        if line.starts_with(&path.display().to_string()) {
+            new_lines.push(updated_line);
             found_line = true;
+        } else {
+            new_lines.push(line);
         }
     }
 
     if !found_line {
-        lines.push(updated_line);
+        new_lines.push(updated_line);
     }
 
-    fs::write(repo.index_file, lines.join("\n").as_bytes())?;
+    fs::write(repo.index_file, new_lines.join("\n").as_bytes())?;
 
     Ok(())
 }

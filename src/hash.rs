@@ -10,7 +10,7 @@ pub fn hash(data: &str) -> String {
 
 pub fn get_hash_path(hash: &str) -> PathBuf {
     let hash_dir = Path::new(&hash[0..2]);
-    return hash_dir.join(&hash[2..]);
+    hash_dir.join(&hash[2..])
 }
 
 pub fn create_hash_dir(hash: &str, base_path: &Path) -> Result<(), io::Error> {

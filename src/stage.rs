@@ -21,8 +21,8 @@ fn stage_file(path: &Path) -> Result<(), io::Error> {
 }
 
 fn stage_dir(path: &Path) -> Result<(), io::Error> {
-    let mut iter = fs::read_dir(path)?;
-    while let Some(dir_entry) = iter.next() {
+    let iter = fs::read_dir(path)?;
+    for dir_entry in iter {
         let path = dir_entry?.path();
         if !path.display().to_string().contains(".snappy") {
             stage(&path)?;
@@ -40,8 +40,8 @@ pub fn stage(path: &Path) -> Result<(), io::Error> {
     let ignore_file = Path::new(".snapignore");
     if ignore_file.exists() {
         let contents = fs::read_to_string(&ignore_file)?;
-        let mut lines = contents.lines();
-        while let Some(line) = lines.next() {
+        let lines = contents.lines();
+        for line in lines {
             let ignored = Pattern::new(&line).unwrap();
             if ignored.matches_path(&path) {
                 return Ok(());

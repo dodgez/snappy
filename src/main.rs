@@ -16,10 +16,7 @@ fn main() -> Result<(), io::Error> {
         .subcommand(
             SubCommand::with_name("init")
                 .about("Creates an empty snappy repository")
-                .arg(
-                    Arg::with_name("bare")
-                        .help("Creates a bare repository"),
-                )
+                .arg(Arg::with_name("bare").help("Creates a bare repository"))
                 .arg(
                     Arg::with_name("force")
                         .help("Overwrites an existing (non-bare) repository")

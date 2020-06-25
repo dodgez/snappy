@@ -47,10 +47,10 @@ pub fn init(bare: bool, force: bool) -> Result<Repo, io::Error> {
     fs::create_dir_all(&repo.snaps_dir)?;
     fs::create_dir_all(&repo.branches_dir)?;
 
-    File::create(&repo.head_file)?.write("master".as_bytes())?;
+    File::create(&repo.head_file)?.write(b"master")?;
     File::create(&repo.index_file)?;
     File::create(&repo.tracked_file)?;
-    File::create(&repo.master_branch_file)?.write("0".as_bytes())?;
+    File::create(&repo.master_branch_file)?.write(b"0")?;
 
     Ok(repo)
 }
@@ -65,11 +65,11 @@ fn is_repo() -> bool {
         return false;
     }
 
-    return true;
+    true
 }
 
 pub fn is_bare() -> bool {
-    return !Path::new(".snappy").exists();
+    !Path::new(".snappy").exists()
 }
 
 pub fn import() -> Result<Repo, io::Error> {
@@ -90,7 +90,7 @@ pub fn import() -> Result<Repo, io::Error> {
         fs::create_dir_all(&repo.branches_dir)?;
     }
     if !repo.head_file.exists() {
-        File::create(&repo.head_file)?.write("master".as_bytes())?;
+        File::create(&repo.head_file)?.write(b"master")?;
     }
     if !repo.index_file.exists() {
         File::create(&repo.index_file)?;
@@ -99,7 +99,7 @@ pub fn import() -> Result<Repo, io::Error> {
         File::create(&repo.tracked_file)?;
     }
     if !repo.master_branch_file.exists() {
-        File::create(&repo.master_branch_file)?.write("0".as_bytes())?;
+        File::create(&repo.master_branch_file)?.write(b"0")?;
     }
 
     Ok(repo)

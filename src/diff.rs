@@ -29,9 +29,9 @@ pub fn diff(file: &str) -> std::result::Result<(), io::Error> {
     let current_contents = fs::read_to_string(&path)?;
 
     let contents = fs::read_to_string(repo.index_file)?;
-    let mut files = contents.lines();
+    let files = contents.lines();
 
-    while let Some(entry) = files.next() {
+    for entry in files {
         if entry.starts_with(file) {
             let file_info = TreeEntry::from_string(entry);
             let file_path = hash::get_hash_path(&file_info.hash);

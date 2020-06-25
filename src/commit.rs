@@ -8,8 +8,8 @@ fn track_object(path: &Path) -> Result<(), io::Error> {
     let repo = repo::import()?;
 
     let contents = fs::read_to_string(&repo.tracked_file)?;
-    let mut lines = contents.lines();
-    while let Some(line) = lines.next() {
+    let lines = contents.lines();
+    for line in lines {
         if path == Path::new(line) {
             return Ok(());
         }
@@ -26,9 +26,9 @@ fn track_object(path: &Path) -> Result<(), io::Error> {
 fn recurse_dir_commit(path: &Path) -> Result<TreeEntry, io::Error> {
     let repo = repo::import()?;
 
-    let mut contents = fs::read_dir(path)?;
+    let contents = fs::read_dir(path)?;
     let mut children = Vec::<TreeEntry>::new();
-    while let Some(dir_entry) = contents.next() {
+    for dir_entry in contents {
         let entry_path = dir_entry?.path();
 
         if entry_path.is_dir() {
@@ -65,20 +65,18 @@ pub fn commit(message: &str, author: &str) -> Result<String, io::Error> {
     fs::create_dir_all(&temp_dir)?;
 
     let contents = fs::read_to_string(&repo.index_file)?;
-    let mut files = contents.lines();
+    let files = contents.lines();
 
-    while let Some(entry) = files.next() {
+    for entry in files {
         let file_info = TreeEntry::from_string(entry);
         let path = Path::new(&file_info.name);
-        match path.parent() {
-            Some(parent) => track_object(parent)?,
-            None => (),
+        if let Some(parent) = path.parent() {
+            track_object(parent)?
         }
         track_object(path)?;
         let file_path = temp_dir.join(path);
-        match file_path.parent() {
-            Some(parent) => fs::create_dir_all(parent)?,
-            None => (),
+        if let Some(parent) = file_path.parent() {
+            fs::create_dir_all(parent)?
         }
         fs::write(file_path, file_info.hash.as_bytes())?
     }
@@ -96,5 +94,5 @@ pub fn commit(message: &str, author: &str) -> Result<String, io::Error> {
     fs::remove_dir_all(temp_dir)?;
     branch::update_branch(&commit.hash)?;
 
-    return Ok(commit.hash);
+    Ok(commit.hash)
 }

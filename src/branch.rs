@@ -16,7 +16,7 @@ pub fn get_latest_commit() -> Result<String, io::Error> {
         return Ok(branch);
     }
 
-    return Ok(fs::read_to_string(branch_file)?);
+    Ok(fs::read_to_string(branch_file)?)
 }
 
 pub fn update_branch(commit: &str) -> Result<(), io::Error> {
